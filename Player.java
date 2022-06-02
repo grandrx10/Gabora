@@ -5,5 +5,6 @@ public class Player extends Creature {
         super.setGravity(0.3);
         super.setRunAccel(0.6);
         super.setJumpSpeed(10);
+        super.setTeam(0);
     }
 }

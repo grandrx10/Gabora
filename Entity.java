@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Entity {
+    private int team;
     private double x;
     private double y;
     private double xSpeed = 0;
@@ -72,15 +73,17 @@ public class Entity {
         this.xSpeed += this.xAccel;
         this.ySpeed += this.yAccel + this.gravity;
 
-        if (this.xSpeed != 0) {
-            this.row = 2;
-            if (System.currentTimeMillis() - animationTime > 100) {
-                this.col = (this.col + 1) % frames[row].length;
-                animationTime = System.currentTimeMillis();
+        if (this.frames != null) {
+            if (this.xSpeed != 0) {
+                this.row = 2;
+                if (System.currentTimeMillis() - animationTime > 100) {
+                    this.col = (this.col + 1) % frames[row].length;
+                    animationTime = System.currentTimeMillis();
+                }
+            } else if (this.ySpeed != 0) {
+                this.col = 3;
+                this.row = 0;
             }
-        } else if (this.ySpeed != 0) {
-            this.col = 3;
-            this.row = 0;
         }
     }
 
@@ -92,9 +95,34 @@ public class Entity {
         if (rect2.x + rect2.length > leftSide && rect2.x < rightSide && rect2.y + rect2.width > topSide
                 && rect2.y < botSide) {
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    public boolean rectRectDetect(Entity rect, Entity rect2, int range) {
+        double leftSide = rect.x - range;
+        double rightSide = rect.x + rect.length + range;
+        double topSide = rect.y - range;
+        double botSide = rect.y + rect.width + range;
+        if (rect2.x + rect2.length > leftSide && rect2.x < rightSide && rect2.y + rect2.width > topSide
+                && rect2.y < botSide) {
+            return true;
+        }
+        return false;
+    }
+
+    public void checkInteract(ArrayList<Entity> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            if (rectRectDetect(this, entities.get(i), 50)) {
+                entities.get(i).interact(this);
+            }
+        }
+    }
+
+    public void interact(Entity interactor) {
+    }
+
+    public void takeDamage(int damage) { // make abstract later.
     }
 
     public void jump() {
@@ -148,6 +176,10 @@ public class Entity {
         return this.ySpeed;
     }
 
+    public int getTeam() {
+        return this.team;
+    }
+
     // setters
     public void setType(String type) {
         this.type = type;
@@ -183,6 +215,10 @@ public class Entity {
 
     public void setDirection(String direction) {
         this.direction = direction;
+    }
+
+    public void setTeam(int team) {
+        this.team = team;
     }
 
 }

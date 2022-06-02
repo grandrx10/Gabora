@@ -7,9 +7,11 @@ public class Animation {
     JFrame gameWindow;
     GraphicsPanel canvas;
     ArrayList<Entity> entities = new ArrayList<Entity>();
-    ArrayList<Room> rooms = new ArrayList<Room>();
+    ArrayList<Bullet> bullets = new ArrayList<Bullet>();
     Camera camera = new Camera(0);
+    Map map;
     MovementKeyListener keyListener;
+    BasicMouseListener mouseListener;
 
     Animation() {
         gameWindow = new JFrame("Game Window");
@@ -22,13 +24,13 @@ public class Animation {
         keyListener = new MovementKeyListener();
         canvas.addKeyListener(keyListener);
 
-        entities.add(new Player(300, 300, 60, 60, "girl", 4, 8));
-        entities.add(new Guard(300, 200, 60, 60, "girl", 4, 8));
+        mouseListener = new BasicMouseListener();
+        canvas.addMouseListener(mouseListener);
 
-        entities.add(new Wall(-1100, 400, 10000, 50, "", 0, 0));
-        entities.add(new Wall(0, 100, 600, 50, "", 0, 0));
-        entities.add(new Wall(0, 100, 50, 300, "", 0, 0));
-        entities.add(new Wall(600, 100, 50, 200, "", 0, 0));
+        entities.add(new Player(300, 160, 60, 60, "testAnimation/girl", 4, 8));
+        // entities.add(new Guard(300, 100, 60, 60, "testAnimation/girl", 4, 8));
+
+        map = new Map(0, 0, entities, 30);
 
         gameWindow.setVisible(true);
     }
@@ -44,6 +46,10 @@ public class Animation {
             } catch (Exception e) {
             }
             // any animations after
+            for (int i = 0; i < bullets.size(); i++) {
+                bullets.get(i).update(entities, bullets);
+            }
+
             for (int i = 0; i < entities.size(); i++) {
                 entities.get(i).update(entities);
                 // if (entities.get(i).getType().equals("Enemy")) {
@@ -51,6 +57,7 @@ public class Animation {
                 // entities.get(i).search();
                 // }
             }
+
             camera.update(entities);
 
         } // 5. Repeat
@@ -65,41 +72,57 @@ public class Animation {
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            for (int i = 0; i < entities.size(); i++) {
+            for (int i = entities.size() - 1; i >= 0; i--) {
                 entities.get(i).draw(g, camera.getXRange(), camera.getYRange());
+            }
+
+            for (int i = bullets.size() - 1; i >= 0; i--) {
+                bullets.get(i).draw(g, camera.getXRange(), camera.getYRange());
             }
         }
     }
 
     // ------------------------------------------------------------------------------
+    public class BasicMouseListener implements MouseListener {
+        public void mouseClicked(MouseEvent e) { // moves the box at the mouse location
+        }
 
+        public void mousePressed(MouseEvent e) { // MUST be implemented even if not used!
+            bullets.add(new Bullet(entities.get(0).getX() + entities.get(0).getLength() / 2,
+                    entities.get(0).getY() + entities.get(0).getWidth() / 2,
+                    e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 10, 10, entities.get(0).getTeam()));
+        }
+
+        public void mouseReleased(MouseEvent e) { // MUST be implemented even if not used!
+        }
+
+        public void mouseEntered(MouseEvent e) { // MUST be implemented even if not used!
+        }
+
+        public void mouseExited(MouseEvent e) { // MUST be implemented even if not used!
+        }
+    }
+
+    // ---------------------------------------------------------------------------------
     public class MovementKeyListener implements KeyListener {
         public void keyPressed(KeyEvent e) {
-            int key = e.getKeyCode();
-            if (key == KeyEvent.VK_LEFT) {
+            char keyChar = e.getKeyChar();
+            if (keyChar == 'a') {
                 entities.get(0).move("left");
-            } else if (key == KeyEvent.VK_RIGHT) {
+            } else if (keyChar == 'd') {
                 entities.get(0).move("right");
-            } else if (key == KeyEvent.VK_UP) {
+            } else if (keyChar == 'w') {
                 entities.get(0).jump();
-            } else if (key == KeyEvent.VK_DOWN) {
+            } else if (keyChar == 'e') {
+                entities.get(0).checkInteract(entities);
             }
-            // char keyChar = e.getKeyChar();
-            // if (keyChar == 'a') {
-            // entities.get(0).move("left");
-            // } else if (keyChar == 'd') {
-            // entities.get(0).move("right");
-            // } else if (keyChar == 'w') {
-            // entities.get(0).jump();
-            // } else if (keyChar == 's') {
-            // }
         }
 
         public void keyReleased(KeyEvent e) {
             int key = e.getKeyCode();
             if (key == KeyEvent.VK_ESCAPE) {
                 gameWindow.dispose();
-            } else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT) {
+            } else if (key == KeyEvent.VK_A || key == KeyEvent.VK_D) {
                 entities.get(0).move("none");
             }
         }

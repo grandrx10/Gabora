@@ -27,7 +27,8 @@ public class Creature extends Entity {
         g.setColor(Color.black);
         g.fillRect((int) super.getX() - 2 - xRange, (int) super.getY() - 22 - yRange, super.getLength() + 4, 14);
         g.setColor(Color.green);
-        g.fillRect((int) super.getX() - xRange, (int) super.getY() - 20 - yRange, super.getLength(), 10);
+        g.fillRect((int) super.getX() - xRange, (int) super.getY() - 20 - yRange,
+                (int) (1.0 * this.hp / this.maxHp * super.getLength()), 10);
 
         super.draw(g, xRange, yRange);
     }
@@ -68,7 +69,7 @@ public class Creature extends Entity {
             if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))) {
                 super.setY((super.getY() - super.getYSpeed()));
                 super.setYSpeed(0);
-                if (super.getX() > entities.get(i).getX()) {
+                if (super.getY() < entities.get(i).getY()) {
                     this.canJump = true;
                 }
             }
@@ -90,6 +91,14 @@ public class Creature extends Entity {
         }
 
         super.update(entities);
+        if (this.hp <= 0) {
+            entities.remove(this);
+        }
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        this.hp -= damage;
     }
 
     // getters
@@ -109,5 +118,4 @@ public class Creature extends Entity {
     public void setJumpSpeed(double jumpSpeed) {
         this.jumpSpeed = jumpSpeed;
     }
-
 }

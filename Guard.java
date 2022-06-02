@@ -7,6 +7,7 @@ public class Guard extends Enemy {
         super.setDetectRange(500);
         super.setRunAccel(0.3);
         super.setJumpSpeed(5);
+        super.setTeam(1);
     }
 
     public void updateDestination(ArrayList<Entity> entities) {
