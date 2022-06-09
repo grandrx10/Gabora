@@ -25,6 +25,7 @@ public class Entity {
     private int row;
     private int col;
     private long animationTime = System.currentTimeMillis();
+    private Color color = new Color(randint(0, 255), randint(0, 255), randint(0, 255));
 
     Entity(int x, int y, int length, int width, String picName, int rows, int columns) {
         this.x = x;
@@ -38,6 +39,10 @@ public class Entity {
         this.picName = picName;
         this.row = 0;
         this.col = 0;
+        loadImages(rows, columns);
+    }
+
+    public void loadImages(int rows, int columns) {
         if (!picName.equals("")) {
             frames = new BufferedImage[rows][columns];
             try {
@@ -52,31 +57,34 @@ public class Entity {
             row = 2;
             col = 0;
         }
-
     }
 
     public void draw(Graphics g, int xRange, int yRange) {
-        if (picName.equals("")) {
-            g.setColor(Color.gray);
-            g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length, this.width);
-        } else {
-            if (this.direction.equals("right")) {
-                g.drawImage(this.frames[this.row][this.col], (int) this.x - xRange, (int) this.y - yRange, null);
+
+        if (checkInRange(xRange, yRange)) {
+            if (picName.equals("")) {
+                g.setColor(this.color);
+                g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length, this.width);
             } else {
-                g.drawImage(this.frames[this.row][this.col], (int) this.x + this.length - xRange, (int) this.y - yRange,
-                        -length, width, null);
+                if (this.direction.equals("right")) {
+                    g.drawImage(this.frames[this.row][this.col], (int) this.x - xRange, (int) this.y - yRange, null);
+                } else {
+                    g.drawImage(this.frames[this.row][this.col], (int) this.x + this.length - xRange,
+                            (int) this.y - yRange,
+                            -length, width, null);
+                }
             }
         }
     }
 
-    public void update(ArrayList<Entity> entities) {
+    public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
         this.xSpeed += this.xAccel;
-        this.ySpeed += this.yAccel + this.gravity;
+        this.ySpeed += this.yAccel + this.gravity * slowmoTracker.getActiveSlowAmount();
 
         if (this.frames != null) {
             if (this.xSpeed != 0) {
                 this.row = 2;
-                if (System.currentTimeMillis() - animationTime > 100) {
+                if ((System.currentTimeMillis() - animationTime) * slowmoTracker.getActiveSlowAmount() > 100) {
                     this.col = (this.col + 1) % frames[row].length;
                     animationTime = System.currentTimeMillis();
                 }
@@ -85,6 +93,17 @@ public class Entity {
                 this.row = 0;
             }
         }
+    }
+
+    public boolean checkInRange(int xRange, int yRange) {
+        int centerEntityX = xRange + Const.WIDTH / 2;
+        int centerEntityY = yRange + Const.HEIGHT / 2;
+
+        if (distance(centerEntityX, centerEntityY, this.x + length / 2,
+                this.y + width / 2) < length / 2 + Const.WIDTH / 2) {
+            return true;
+        }
+        return false;
     }
 
     public boolean rectRectDetect(Entity rect, Entity rect2) {
@@ -117,6 +136,14 @@ public class Entity {
                 entities.get(i).interact(this);
             }
         }
+    }
+
+    public double distance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+    }
+
+    public int randint(int min, int max) {
+        return (int) Math.floor(Math.random() * (max - min + 1) + min);
     }
 
     public void interact(Entity interactor) {
@@ -180,6 +207,10 @@ public class Entity {
         return this.team;
     }
 
+    public Color getColor() {
+        return this.color;
+    }
+
     // setters
     public void setType(String type) {
         this.type = type;
@@ -219,6 +250,26 @@ public class Entity {
 
     public void setTeam(int team) {
         this.team = team;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setFrames(BufferedImage[][] frames) {
+        this.frames = frames;
+    }
+
+    public void setFrames(int row, int col, BufferedImage image) {
+        this.frames[row][col] = image;
     }
 
 }

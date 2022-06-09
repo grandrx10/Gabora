@@ -12,8 +12,13 @@ public class Camera {
     }
 
     public void update(ArrayList<Entity> entities) {
-        xRange = (int) (entities.get(focusIndex).getX() + entities.get(focusIndex).getLength() / 2 - Const.WIDTH / 2);
-        yRange = (int) (entities.get(focusIndex).getY() + entities.get(focusIndex).getWidth() / 2 - Const.HEIGHT / 2);
+        if (entities.get(focusIndex).getType().equals("Player")) {
+            xRange = (int) (entities.get(focusIndex).getX() + entities.get(focusIndex).getLength() / 2
+                    - Const.WIDTH / 2);
+            yRange = (int) (entities.get(focusIndex).getY() + entities.get(focusIndex).getWidth() / 2
+                    - Const.HEIGHT / 2);
+
+        }
     }
 
     public int getXRange() {

@@ -10,8 +10,10 @@ public class Animation {
     ArrayList<Bullet> bullets = new ArrayList<Bullet>();
     Camera camera = new Camera(0);
     Map map;
+    SlowmoTracker slowmoTracker;
     MovementKeyListener keyListener;
     BasicMouseListener mouseListener;
+    // long lastUpdate = System.currentTimeMillis();
 
     Animation() {
         gameWindow = new JFrame("Game Window");
@@ -30,7 +32,8 @@ public class Animation {
         entities.add(new Player(300, 160, 60, 60, "testAnimation/girl", 4, 8));
         // entities.add(new Guard(300, 100, 60, 60, "testAnimation/girl", 4, 8));
 
-        map = new Map(0, 0, entities, 30);
+        map = new Map(0, 0, entities, 50);
+        slowmoTracker = new SlowmoTracker(5000, 0.1);
 
         gameWindow.setVisible(true);
     }
@@ -45,19 +48,17 @@ public class Animation {
                 Thread.sleep(Const.FRAME_PERIOD);
             } catch (Exception e) {
             }
+
             // any animations after
             for (int i = 0; i < bullets.size(); i++) {
-                bullets.get(i).update(entities, bullets);
+                bullets.get(i).update(entities, bullets, slowmoTracker);
             }
 
             for (int i = 0; i < entities.size(); i++) {
-                entities.get(i).update(entities);
-                // if (entities.get(i).getType().equals("Enemy")) {
-
-                // entities.get(i).search();
-                // }
+                if (entities.get(i).checkInRange(camera.getXRange(), camera.getYRange())) {
+                    entities.get(i).update(entities, bullets, slowmoTracker);
+                }
             }
-
             camera.update(entities);
 
         } // 5. Repeat
@@ -72,6 +73,10 @@ public class Animation {
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
+            for (int i = 0; i < map.getRooms().size(); i++) {
+                map.getRooms().get(i).draw(g, camera.getXRange(), camera.getYRange());
+            }
+
             for (int i = entities.size() - 1; i >= 0; i--) {
                 entities.get(i).draw(g, camera.getXRange(), camera.getYRange());
             }
@@ -88,9 +93,17 @@ public class Animation {
         }
 
         public void mousePressed(MouseEvent e) { // MUST be implemented even if not used!
-            bullets.add(new Bullet(entities.get(0).getX() + entities.get(0).getLength() / 2,
+            // bullets.add(new Bullet(entities.get(0).getX() + entities.get(0).getLength() /
+            // 2,
+            // entities.get(0).getY() + entities.get(0).getWidth() / 2,
+            // e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 10, 5,
+            // entities.get(0).getTeam(),
+            // 100, 2000, true, "bullet.png"));
+            bullets.add(new Slash(entities.get(0).getX() + entities.get(0).getLength() / 2,
                     entities.get(0).getY() + entities.get(0).getWidth() / 2,
-                    e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 10, 10, entities.get(0).getTeam()));
+                    e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 100, 5,
+                    entities.get(0).getTeam(),
+                    10, 100, false, "slash.png"));
         }
 
         public void mouseReleased(MouseEvent e) { // MUST be implemented even if not used!
@@ -116,13 +129,20 @@ public class Animation {
             } else if (keyChar == 'e') {
                 entities.get(0).checkInteract(entities);
             }
+
+            int key = e.getKeyCode();
+            if (key == 16) {
+                slowmoTracker.activateSlow();
+            }
         }
 
         public void keyReleased(KeyEvent e) {
             int key = e.getKeyCode();
             if (key == KeyEvent.VK_ESCAPE) {
                 gameWindow.dispose();
-            } else if (key == KeyEvent.VK_A || key == KeyEvent.VK_D) {
+            } else if (key == KeyEvent.VK_A && entities.get(0).getDirection().equals("left")) {
+                entities.get(0).move("none");
+            } else if (key == KeyEvent.VK_D && entities.get(0).getDirection().equals("right")) {
                 entities.get(0).move("none");
             }
         }

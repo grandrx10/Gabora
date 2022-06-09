@@ -13,6 +13,9 @@ public class Creature extends Entity {
     private double runAccel;
     private double jumpSpeed;
     private boolean canJump = true;
+    private int attackCooldown = 500;
+    private boolean canAttack = true;
+    private long lastAttack = System.currentTimeMillis();
 
     Creature(int x, int y, int length, int width, String picName, int rows, int columns) {
         super(x, y, length, width, picName, rows, columns);
@@ -55,27 +58,7 @@ public class Creature extends Entity {
     }
 
     @Override
-    public void update(ArrayList<Entity> entities) {
-        super.setX((super.getX() + super.getXSpeed()));
-        for (int i = 0; i < entities.size(); i++) {
-            if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))) {
-                super.setX((super.getX() - super.getXSpeed()));
-                super.setXSpeed(0);
-            }
-        }
-
-        super.setY((super.getY() + super.getYSpeed()));
-        for (int i = 0; i < entities.size(); i++) {
-            if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))) {
-                super.setY((super.getY() - super.getYSpeed()));
-                super.setYSpeed(0);
-                if (super.getY() < entities.get(i).getY()) {
-                    this.canJump = true;
-                }
-            }
-        }
-
-        // deaccelerate objects due to gravity
+    public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
         if (super.getXSpeed() > this.runAccel * 10) {
             super.setXSpeed(this.runAccel * 10);
         } else if (super.getXSpeed() < -this.runAccel * 10) {
@@ -90,8 +73,45 @@ public class Creature extends Entity {
             super.setXSpeed(0);
         }
 
-        super.update(entities);
+        super.update(entities, bullets, slowmoTracker);
+
+        super.setX((super.getX() + super.getXSpeed() * slowmoTracker.getActiveSlowAmount()));
+        for (int i = 0; i < entities.size(); i++) {
+            if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
+                    && !entities.get(i).getType().equals("Blood") && !entities.get(i).getType().equals("Platform")) {
+                super.setX((super.getX() - super.getXSpeed() * slowmoTracker.getActiveSlowAmount()));
+                super.setXSpeed(0);
+            }
+        }
+
+        super.setY((super.getY() + super.getYSpeed() * slowmoTracker.getActiveSlowAmount()));
+        for (int i = 0; i < entities.size(); i++) {
+            if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
+                    && !entities.get(i).getType().equals("Blood")) {
+                if (entities.get(i).getType().equals("Platform")) {
+                    if (this.getY() + this.getWidth() < entities.get(i).getY() + 10) {
+                        super.setY(entities.get(i).getY() - super.getWidth());
+                        super.setYSpeed(0);
+                        if (super.getY() < entities.get(i).getY()) {
+                            this.canJump = true;
+                        }
+                    }
+                } else {
+                    super.setY((super.getY() - super.getYSpeed() * slowmoTracker.getActiveSlowAmount()));
+                    super.setYSpeed(0);
+                    if (super.getY() < entities.get(i).getY()) {
+                        this.canJump = true;
+                    }
+                }
+            }
+        }
+
         if (this.hp <= 0) {
+            for (int i = 0; i < 10; i++) {
+                entities.add(new Blood((int) this.getX() + this.getLength() / 2,
+                        (int) this.getY() + this.getWidth() / 2,
+                        randint(-20, 20), randint(-30, 0)));
+            }
             entities.remove(this);
         }
     }
@@ -110,6 +130,22 @@ public class Creature extends Entity {
         return this.jumpSpeed;
     }
 
+    public boolean getCanJump() {
+        return this.canJump;
+    }
+
+    public boolean getCanAttack() {
+        return this.canAttack;
+    }
+
+    public int getAttackCooldown() {
+        return attackCooldown;
+    }
+
+    public long getLastAttack() {
+        return lastAttack;
+    }
+
     // setters
     public void setRunAccel(double runAccel) {
         this.runAccel = runAccel;
@@ -117,5 +153,17 @@ public class Creature extends Entity {
 
     public void setJumpSpeed(double jumpSpeed) {
         this.jumpSpeed = jumpSpeed;
+    }
+
+    public void setCanJump(boolean canJump) {
+        this.canJump = canJump;
+    }
+
+    public void setCanAttack(boolean canAttack) {
+        this.canAttack = canAttack;
+    }
+
+    public void setLastAttack(long lastAttack) {
+        this.lastAttack = lastAttack;
     }
 }

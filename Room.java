@@ -19,55 +19,29 @@ public class Room {
         this.id = id;
     }
 
-    // public void createContents(ArrayList<Entity> entities) {
-    // String[] roomNames = { "flatFloor", "rectStarter", "secondFloor" };
-    // String randomRoom = roomNames[randint(0, roomNames.length - 1)];
-    // if (randomRoom.equals("rectStarter")) {
-    // this.length = 600;
-    // this.width = 400;
-    // } else if (randomRoom.equals("flatFloor")) {
-    // this.length = 1200;
-    // this.width = 400;
-    // } else if (randomRoom.equals("secondFloor")) {
-    // this.length = 1200;
-    // this.width = 600;
-    // this.buildY = buildY - 200;
-    // }
+    Room() {
+        this.x = 0;
+        this.y = 0;
+        this.buildX = 0;
+        this.buildY = 0;
+        this.length = 0;
+        this.width = 0;
+        this.id = 0;
+    }
 
-    // // MAKE OBJECTS OVER HERE DO NOT DO THIS EVER!!!!
-    // if (randomRoom.equals("rectStarter")) {
-    // entities.add(new Wall(x, y + 350, 600, 50, ""));
-    // entities.add(new Wall(x, y, 600, 50, ""));
-    // entities.add(new Wall(x, y, 50, 250, ""));
-    // entities.add(new Wall(x + 550, y, 50, 250, ""));
-    // entities.add(new Door(x + 580, y + 250, 20, 100, ""));
-    // entities.add(new Door(x, y + 250, 20, 100, ""));
-    // connectors.add(new Connector(x + 600, y));
-    // } else if (randomRoom.equals("flatFloor")) {
-    // entities.add(new Wall(x, y + 350, 1200, 50, ""));
-    // entities.add(new Wall(x, y, 1200, 50, ""));
-    // entities.add(new Wall(x, y, 50, 250, ""));
-    // entities.add(new Wall(x + 1150, y, 50, 250, ""));
-    // entities.add(new Door(x + 1180, y + 250, 20, 100, ""));
-    // entities.add(new Door(x, y + 250, 20, 100, ""));
-    // connectors.add(new Connector(x + 1200, y));
-    // } else if (randomRoom.equals("secondFloor")) {
-    // entities.add(new Wall(x, y + 350, 1200, 50, ""));
-    // entities.add(new Wall(x, y - 200, 1200, 50, ""));
-    // entities.add(new Wall(x, y - 200, 50, 450, ""));
+    public void draw(Graphics g, int xRange, int yRange) {
+        g.setColor(Color.GRAY);
+        g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length, this.width);
+    }
 
-    // entities.add(new Wall(x + 500, y + 150, 700, 250, ""));
-    // entities.add(new Wall(x + 450, y + 200, 50, 150, ""));
-    // entities.add(new Wall(x + 400, y + 250, 50, 100, ""));
-    // entities.add(new Wall(x + 350, y + 300, 50, 50, ""));
-
-    // entities.add(new Wall(x + 1150, y - 200, 50, 250, ""));
-    // entities.add(new Wall(x + 1150, y + 200, 50, 200, ""));
-    // entities.add(new Door(x + 1180, y + 50, 20, 100, ""));
-    // entities.add(new Door(x, y + 250, 20, 100, ""));
-    // connectors.add(new Connector(x + 1200, y - 200));
-    // }
-    // }
+    public boolean overlaps(ArrayList<Room> rooms) {
+        for (int i = 0; i < rooms.size(); i++) {
+            if (this != rooms.get(i) && rectRectDetect(rooms.get(i), this)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean rectRectDetect(Room rect, Room rect2) {
         double leftSide = rect.x;
@@ -90,8 +64,32 @@ public class Room {
         return this.length;
     }
 
-    public Connector getConnector() {
-        return this.connectors.get(0);
+    public int getWidth() {
+        return this.width;
     }
 
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
+    // setters
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 }
