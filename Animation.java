@@ -13,7 +13,6 @@ public class Animation {
     SlowmoTracker slowmoTracker;
     MovementKeyListener keyListener;
     BasicMouseListener mouseListener;
-    // long lastUpdate = System.currentTimeMillis();
 
     Animation() {
         gameWindow = new JFrame("Game Window");
@@ -99,11 +98,8 @@ public class Animation {
             // e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 10, 5,
             // entities.get(0).getTeam(),
             // 100, 2000, true, "bullet.png"));
-            bullets.add(new Slash(entities.get(0).getX() + entities.get(0).getLength() / 2,
-                    entities.get(0).getY() + entities.get(0).getWidth() / 2,
-                    e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 100, 5,
-                    entities.get(0).getTeam(),
-                    10, 100, false, "slash.png"));
+            entities.get(0).attack(e.getX() + camera.getXRange(),
+                    e.getY() + camera.getYRange(), entities, bullets);
         }
 
         public void mouseReleased(MouseEvent e) { // MUST be implemented even if not used!
@@ -133,6 +129,10 @@ public class Animation {
             int key = e.getKeyCode();
             if (key == 16) {
                 slowmoTracker.activateSlow();
+            } else if (key == 32) {
+                Point p = MouseInfo.getPointerInfo().getLocation();
+                entities.get(0).dash(p.getX() + camera.getXRange(),
+                        p.getY() + camera.getYRange(), entities, bullets);
             }
         }
 

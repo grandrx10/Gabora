@@ -15,15 +15,6 @@ abstract class Enemy extends Creature {
 
     // abstract void idleMovement();
 
-    @Override
-    public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
-        if ((System.currentTimeMillis() - super.getLastAttack())
-                * slowmoTracker.getActiveSlowAmount() > super.getAttackCooldown()) {
-            super.setCanAttack(true);
-        }
-        super.update(entities, bullets, slowmoTracker);
-    }
-
     public void updateDestination(ArrayList<Entity> entities) {
         if (distance(super.getX(), super.getY(), entities.get(0).getX(),
                 entities.get(0).getY()) < detectRange) {

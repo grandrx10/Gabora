@@ -14,7 +14,7 @@ public class Guard extends Enemy {
     public void attack(ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
         bullets.add(new Bullet(super.getX() + super.getLength() / 2, super.getY() + super.getWidth() / 2,
                 super.getDestinationX(), super.getDestinationY(), 10, 20, super.getTeam(), 100, 5000, true,
-                "bullet.png"));
+                "bullet"));
     }
 
     @Override

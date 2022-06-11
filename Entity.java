@@ -100,7 +100,7 @@ public class Entity {
         int centerEntityY = yRange + Const.HEIGHT / 2;
 
         if (distance(centerEntityX, centerEntityY, this.x + length / 2,
-                this.y + width / 2) < length / 2 + Const.WIDTH / 2) {
+                this.y + width / 2) < length / 2 + Const.WIDTH / 2 + 100) {
             return true;
         }
         return false;
@@ -156,6 +156,14 @@ public class Entity {
     }
 
     public void move(String dir) {
+    }
+
+    public void attack(int aimX, int aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
+
+    }
+
+    public void dash(double aimX, double aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
+
     }
 
     // getters

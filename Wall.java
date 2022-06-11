@@ -8,8 +8,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Wall extends Entity {
+    private BufferedImage image;
+
     Wall(int x, int y, int length, int width, String picName) {
-        super(x, y, length, width, picName, 1, 1);
+        super(x, y, length, width, picName, 0, 0);
         super.setType("Wall");
         super.setTeam(-1);
     }
@@ -24,7 +26,7 @@ public class Wall extends Entity {
             } else {
                 // walls are static, only have 1 image
                 for (int i = 0; i < super.getLength(); i += 50) {
-                    g.drawImage(super.getFrames()[0][0], (int) super.getX() - xRange + i, (int) super.getY() - yRange,
+                    g.drawImage(image, (int) super.getX() - xRange + i, (int) super.getY() - yRange,
                             null);
                 }
             }
@@ -35,9 +37,8 @@ public class Wall extends Entity {
     @Override
     public void loadImages(int rows, int columns) {
         if (!super.getPicName().equals("")) {
-            super.setFrames(new BufferedImage[rows][columns]);
             try {
-                super.setFrames(0, 0, ImageIO.read(new File("images/" + super.getPicName() + ".png")));
+                image = ImageIO.read(new File("images/" + super.getPicName() + ".png"));
             } catch (IOException ex) {
                 System.out.println(ex);
                 System.out.println("failed to load wall");

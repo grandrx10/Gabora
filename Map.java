@@ -107,7 +107,8 @@ public class Map {
             } while (!roomFits && timesTriedToLoad < 100);
 
             if (timesTriedToLoad == 100) {
-                entities.add(new Wall(exitX.get(0), exitY.get(0), 50, 100, wallTypeToSpawn));
+                entities.add(new Wall(exitX.get(0), exitY.get(0), 50, 50, wallTypeToSpawn));
+                entities.add(new Wall(exitX.get(0), exitY.get(0) + 50, 50, 50, wallTypeToSpawn));
                 removeEntityAt(exitX.get(0) + 10, exitY.get(0), entities);
                 removeEntityAt(exitX.get(0) + 10, exitY.get(0) + 50, entities);
                 exitX.remove(0);

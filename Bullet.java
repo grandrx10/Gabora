@@ -40,7 +40,7 @@ public class Bullet {
         this.isRemovedOnHit = isRemovedOnHit;
 
         try {
-            this.original = ImageIO.read(new File("images/" + picName));
+            this.original = ImageIO.read(new File("images/" + picName + ".png"));
         } catch (IOException ex) {
             System.out.println("Image not found");
         }

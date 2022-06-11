@@ -59,6 +59,11 @@ public class Creature extends Entity {
 
     @Override
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
+        if ((System.currentTimeMillis() - lastAttack)
+                * slowmoTracker.getActiveSlowAmount() > attackCooldown) {
+            canAttack = true;
+        }
+
         if (super.getXSpeed() > this.runAccel * 10) {
             super.setXSpeed(this.runAccel * 10);
         } else if (super.getXSpeed() < -this.runAccel * 10) {
