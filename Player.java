@@ -1,4 +1,8 @@
+import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.awt.event.*;
+import java.io.*;
 
 public class Player extends Creature {
 
@@ -9,6 +13,24 @@ public class Player extends Creature {
         super.setRunAccel(0.6);
         super.setJumpSpeed(10);
         super.setTeam(0);
+    }
+
+    @Override
+    public void draw(Graphics g, int xRange, int yRange) {
+        super.draw(g, xRange, yRange);
+        if (super.getInteractingWith() != null) {
+            drawShop(g, xRange, yRange);
+        }
+    }
+
+    public void drawShop(Graphics g, int xRange, int yRange) {
+        g.setColor(new Color(51, 62, 181));
+        g.fillRect(190, 390, Const.WIDTH - 380, Const.HEIGHT - 430);
+        g.setColor(new Color(78, 171, 237));
+        g.fillRect(200, 400, Const.WIDTH - 400, Const.HEIGHT - 450);
+        for (int i = 0; i < super.getInteractingWith().getItems().size(); i++) {
+            super.getInteractingWith().getItems().get(i).draw(g);
+        }
     }
 
     @Override

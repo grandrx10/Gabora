@@ -45,4 +45,8 @@ public class Wall extends Entity {
             }
         }
     }
+
+    public BufferedImage getImage() {
+        return image;
+    }
 }

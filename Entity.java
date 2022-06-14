@@ -21,6 +21,8 @@ public class Entity {
     private String direction;
     private String picName;
     private String type = "Entity";
+    private boolean touchable;
+    private Entity interactingWith;
     private BufferedImage[][] frames;
     private int row;
     private int col;
@@ -39,6 +41,7 @@ public class Entity {
         this.picName = picName;
         this.row = 0;
         this.col = 0;
+        this.touchable = true;
         loadImages(rows, columns);
     }
 
@@ -219,6 +222,18 @@ public class Entity {
         return this.color;
     }
 
+    public boolean getTouchable() {
+        return touchable;
+    }
+
+    public Entity getInteractingWith() {
+        return this.interactingWith;
+    }
+
+    public ArrayList<Item> getItems() {
+        return null;
+    }
+
     // setters
     public void setType(String type) {
         this.type = type;
@@ -280,4 +295,11 @@ public class Entity {
         this.frames[row][col] = image;
     }
 
+    public void setTouchable(boolean touchable) {
+        this.touchable = touchable;
+    }
+
+    public void setInteractingWith(Entity entity) {
+        interactingWith = entity;
+    }
 }

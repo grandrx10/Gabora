@@ -2,15 +2,16 @@ import java.util.*;
 import java.awt.Color;
 
 public class Blood extends Particle {
-    Blood(int x, int y, double xSpeed, double ySpeed) {
+    Blood(int x, int y, double xSpeed, double ySpeed, Color color) {
         super(x, y, 10, 10, "");
         super.setType("Blood");
         super.setXSpeed(xSpeed);
         super.setYSpeed(ySpeed);
         super.setTeam(-1);
         super.setDuration(1000);
-        super.setColor(Color.RED);
+        super.setColor(color);
         super.setGravity(0.2);
+        super.setTouchable(false);
     }
 
     @Override
@@ -21,7 +22,7 @@ public class Blood extends Particle {
         super.setX((super.getX() + super.getXSpeed() * slowmoTracker.getActiveSlowAmount()));
         for (int i = 0; i < entities.size(); i++) {
             if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
-                    && !entities.get(i).getType().equals("Blood")) {
+                    && entities.get(i).getTouchable()) {
                 // entities.remove(this);
                 super.setX((super.getX() - super.getXSpeed() *
                         slowmoTracker.getActiveSlowAmount()));
@@ -33,7 +34,7 @@ public class Blood extends Particle {
             super.setY((super.getY() + super.getYSpeed() * slowmoTracker.getActiveSlowAmount()));
             for (int i = 0; i < entities.size(); i++) {
                 if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
-                        && !entities.get(i).getType().equals("Blood")) {
+                        && entities.get(i).getTouchable()) {
                     // entities.remove(this);
                     super.setY((super.getY() - super.getYSpeed() *
                             slowmoTracker.getActiveSlowAmount()));

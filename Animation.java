@@ -31,7 +31,9 @@ public class Animation {
         entities.add(new Player(300, 160, 60, 60, "testAnimation/girl", 4, 8));
         // entities.add(new Guard(300, 100, 60, 60, "testAnimation/girl", 4, 8));
 
-        map = new Map(0, 0, entities, 50);
+        entities.add(new Shop(500, 160, 100, 100, "shop", 3));
+
+        map = new Map(0, 0, entities, 2);
         slowmoTracker = new SlowmoTracker(5000, 0.1);
 
         gameWindow.setVisible(true);

@@ -83,7 +83,7 @@ public class Creature extends Entity {
         super.setX((super.getX() + super.getXSpeed() * slowmoTracker.getActiveSlowAmount()));
         for (int i = 0; i < entities.size(); i++) {
             if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
-                    && !entities.get(i).getType().equals("Blood") && !entities.get(i).getType().equals("Platform")) {
+                    && entities.get(i).getTouchable() && !entities.get(i).getType().equals("Platform")) {
                 super.setX((super.getX() - super.getXSpeed() * slowmoTracker.getActiveSlowAmount()));
                 super.setXSpeed(0);
             }
@@ -92,7 +92,7 @@ public class Creature extends Entity {
         super.setY((super.getY() + super.getYSpeed() * slowmoTracker.getActiveSlowAmount()));
         for (int i = 0; i < entities.size(); i++) {
             if (!this.equals(entities.get(i)) && super.rectRectDetect(this, entities.get(i))
-                    && !entities.get(i).getType().equals("Blood")) {
+                    && entities.get(i).getTouchable()) {
                 if (entities.get(i).getType().equals("Platform")) {
                     if (this.getY() + this.getWidth() < entities.get(i).getY() + 10) {
                         super.setY(entities.get(i).getY() - super.getWidth());
@@ -115,7 +115,7 @@ public class Creature extends Entity {
             for (int i = 0; i < 10; i++) {
                 entities.add(new Blood((int) this.getX() + this.getLength() / 2,
                         (int) this.getY() + this.getWidth() / 2,
-                        randint(-20, 20), randint(-30, 0)));
+                        randint(-20, 20), randint(-30, 0), Color.RED));
             }
             entities.remove(this);
         }

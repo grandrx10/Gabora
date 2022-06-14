@@ -25,7 +25,12 @@ public class Map {
             System.out.println("File could not be found");
         }
 
-        numberOfCustomRooms = mapScanner.nextInt();
+        mapScanner = loadRoom("rooms.txt", 0);
+        while (mapScanner.hasNext()) {
+            if (mapScanner.nextLine().equals("---")) {
+                numberOfCustomRooms++;
+            }
+        }
 
         int xPos = x;
         int yPos = y;
@@ -139,6 +144,8 @@ public class Map {
                             entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, ""));
                         } else if (subsection.equals("-")) {
                             entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, ""));
+                        } else if (subsection.equals("B")) {
+                            entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
                         } else if (subsection.equals("S")) {
                             entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, ""));
                         } else if (subsection.equals("E")) {
@@ -198,9 +205,6 @@ public class Map {
         } catch (Exception e) {
             System.out.println("File could not be found");
         }
-        // This is here to get rid of the line at the beginning of the file
-        // where the number of rooms is
-        mapScanner.nextLine();
 
         int roomsPassed = 0;
         while (roomsPassed < roomNumber) {
