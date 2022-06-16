@@ -23,13 +23,14 @@ public class Entity {
     private String type = "Entity";
     private boolean touchable;
     private Entity interactingWith;
-    private BufferedImage[][] frames;
+    // private BufferedImage[][] frames;
     private int row;
     private int col;
+    private ArrayList<ArrayList<BufferedImage>> frames;
     private long animationTime = System.currentTimeMillis();
     private Color color = new Color(randint(0, 255), randint(0, 255), randint(0, 255));
 
-    Entity(int x, int y, int length, int width, String picName, int rows, int columns) {
+    Entity(int x, int y, int length, int width, String picName) {
         this.x = x;
         this.y = y;
         this.length = length;
@@ -42,27 +43,32 @@ public class Entity {
         this.row = 0;
         this.col = 0;
         this.touchable = true;
-        loadImages(rows, columns);
+        loadImages();
     }
 
-    public void loadImages(int rows, int columns) {
+    public void loadImages() {
         if (!picName.equals("")) {
-            frames = new BufferedImage[rows][columns];
-            try {
-                for (int row = 0; row < rows; row++) {
-                    for (int col = 0; col < columns; col++) {
-                        frames[row][col] = ImageIO.read(new File("images/" + picName + row + col + ".png"));
+            frames = new ArrayList<ArrayList<BufferedImage>>();
+            for (int row = 0; row < 4; row++) {
+                boolean moreCols = true;
+                int col = 0;
+                while (moreCols) {
+                    try {
+                        frames.add(new ArrayList<BufferedImage>());
+                        frames.get(row).add(ImageIO.read(new File("images/" + picName + row + "-" + col + ".png")));
+                        col++;
+                    } catch (IOException ex) {
+                        moreCols = false;
+
                     }
                 }
-            } catch (IOException ex) {
-                System.out.println(ex);
             }
-            row = 2;
+            row = 0;
             col = 0;
         }
     }
 
-    public void draw(Graphics g, int xRange, int yRange) {
+    public void draw(Graphics g, int xRange, int yRange, SlowmoTracker slowmoTracker) {
 
         if (checkInRange(xRange, yRange)) {
             if (picName.equals("")) {
@@ -70,9 +76,9 @@ public class Entity {
                 g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length, this.width);
             } else {
                 if (this.direction.equals("right")) {
-                    g.drawImage(this.frames[this.row][this.col], (int) this.x - xRange, (int) this.y - yRange, null);
+                    g.drawImage(this.frames.get(row).get(col), (int) this.x - xRange, (int) this.y - yRange, null);
                 } else {
-                    g.drawImage(this.frames[this.row][this.col], (int) this.x + this.length - xRange,
+                    g.drawImage(this.frames.get(row).get(col), (int) this.x + this.length - xRange,
                             (int) this.y - yRange,
                             -length, width, null);
                 }
@@ -84,18 +90,19 @@ public class Entity {
         this.xSpeed += this.xAccel;
         this.ySpeed += this.yAccel + this.gravity * slowmoTracker.getActiveSlowAmount();
 
-        if (this.frames != null) {
-            if (this.xSpeed != 0) {
-                this.row = 2;
-                if ((System.currentTimeMillis() - animationTime) * slowmoTracker.getActiveSlowAmount() > 100) {
-                    this.col = (this.col + 1) % frames[row].length;
-                    animationTime = System.currentTimeMillis();
-                }
-            } else if (this.ySpeed != 0) {
-                this.col = 3;
-                this.row = 0;
-            }
-        }
+        // if (this.frames != null) {
+        // if (this.xSpeed != 0) {
+        // this.row = 2;
+        // if ((System.currentTimeMillis() - animationTime) *
+        // slowmoTracker.getActiveSlowAmount() > 100) {
+        // this.col = (this.col + 1) % frames[row].length;
+        // animationTime = System.currentTimeMillis();
+        // }
+        // } else if (this.ySpeed != 0) {
+        // this.col = 3;
+        // this.row = 0;
+        // }
+        // }
     }
 
     public boolean checkInRange(int xRange, int yRange) {
@@ -169,6 +176,14 @@ public class Entity {
 
     }
 
+    public void mouseInteract(int x, int y) {
+
+    }
+
+    public void getKill() {
+
+    }
+
     // getters
     public String getType() {
         return type;
@@ -198,7 +213,7 @@ public class Entity {
         return this.width;
     }
 
-    public BufferedImage[][] getFrames() {
+    public ArrayList<ArrayList<BufferedImage>> getFrames() {
         return frames;
     }
 
@@ -232,6 +247,22 @@ public class Entity {
 
     public ArrayList<Item> getItems() {
         return null;
+    }
+
+    public int getHp() {
+        return 100;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public long getAnimationTime() {
+        return animationTime;
     }
 
     // setters
@@ -287,12 +318,12 @@ public class Entity {
         this.color = color;
     }
 
-    public void setFrames(BufferedImage[][] frames) {
+    public void setFrames(ArrayList<ArrayList<BufferedImage>> frames) {
         this.frames = frames;
     }
 
     public void setFrames(int row, int col, BufferedImage image) {
-        this.frames[row][col] = image;
+        this.frames.get(row).set(col, image);
     }
 
     public void setTouchable(boolean touchable) {
@@ -301,5 +332,17 @@ public class Entity {
 
     public void setInteractingWith(Entity entity) {
         interactingWith = entity;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
+    }
+
+    public void setAnimationTime(long animationTime) {
+        this.animationTime = animationTime;
     }
 }

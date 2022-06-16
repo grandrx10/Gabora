@@ -5,7 +5,7 @@ public class Particle extends Entity {
     private double duration;
 
     Particle(int x, int y, int length, int width, String picName) {
-        super(x, y, length, width, picName, 0, 0);
+        super(x, y, length, width, picName);
         super.setType("Particle");
         super.setTeam(-1);
         this.creationTime = System.currentTimeMillis();

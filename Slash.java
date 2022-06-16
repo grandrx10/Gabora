@@ -2,8 +2,9 @@ import java.util.*;
 
 public class Slash extends Bullet {
     Slash(double x, double y, double aimX, double aimY, int r, double speed, int team,
-            int damage, int distance, boolean isRemovedOnHit, String picName) {
-        super(x, y, aimX, aimY, r, speed, team, damage, distance, isRemovedOnHit, picName);
+            int damage, int distance, boolean isRemovedOnHit, String picName, Entity shooter) {
+        super(x, y, aimX, aimY, r, speed, team, damage, distance, isRemovedOnHit, picName, shooter);
+        super.setSound("audio/slash.wav");
     }
 
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
@@ -12,6 +13,7 @@ public class Slash extends Bullet {
                     && super.getTeam() != bullets.get(i).getTeam()) {
                 bullets.get(i).setAim(super.getAimX(), super.getAimY());
                 bullets.get(i).setTeam(super.getTeam());
+                bullets.get(i).setShooter(super.getShooter());
             }
         }
         super.update(entities, bullets, slowmoTracker);

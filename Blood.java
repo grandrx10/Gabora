@@ -8,7 +8,7 @@ public class Blood extends Particle {
         super.setXSpeed(xSpeed);
         super.setYSpeed(ySpeed);
         super.setTeam(-1);
-        super.setDuration(1000);
+        super.setDuration(1500);
         super.setColor(color);
         super.setGravity(0.2);
         super.setTouchable(false);

@@ -5,6 +5,7 @@ public class SlowmoTracker {
     private double timeSlowDuration;
     private double slowAmount;
     private double activeSlowAmount = 1;
+    private SlowmoTrackerSound sound = new SlowmoTrackerSound();
 
     SlowmoTracker(double timeSlowDuration, double slowAmount) {
         this.timeSlowDuration = timeSlowDuration;
@@ -15,9 +16,11 @@ public class SlowmoTracker {
         if (timeSlowStart == 0) {
             activeSlowAmount = slowAmount;
             timeSlowStart = System.currentTimeMillis();
+            sound.slowSound();
         } else {
             activeSlowAmount = 1;
             timeSlowStart = 0;
+            sound.resumeTimeSound();
         }
     }
 

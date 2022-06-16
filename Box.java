@@ -30,7 +30,7 @@ public class Box extends Wall {
         }
 
         if (this.hp <= 0) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 3; i++) {
                 entities.add(new Blood((int) this.getX() + this.getLength() / 2,
                         (int) this.getY() + this.getWidth() / 2,
                         randint(-20, 20), randint(-30, 0), new Color(150, 75, 0)));

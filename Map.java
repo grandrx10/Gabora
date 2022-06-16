@@ -123,6 +123,7 @@ public class Map {
                 System.out.println("Triggered wall");
             }
 
+            boolean noEnemies = false;
             while (loadRoom) {
                 String text = mapScanner.nextLine();
                 if (text.equals("---")) {
@@ -141,31 +142,86 @@ public class Map {
                                 entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
                             }
                         } else if (subsection.equals("|")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, ""));
+                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
                         } else if (subsection.equals("-")) {
                             entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, ""));
                         } else if (subsection.equals("B")) {
                             entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
                         } else if (subsection.equals("S")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, ""));
+                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
                         } else if (subsection.equals("E")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, ""));
+                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
                             exitX.add(xPos + i * 50);
                             exitY.add(yPos);
+                        } else if (subsection.equals("$")) {
+                            entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
+                            noEnemies = true;
                         }
                     }
                     yPos += 50;
                 }
             }
 
-            if (roomsSpawned != 1) {
-                addEnemy(rooms.get(rooms.size() - 1), entities);
-                addEnemy(rooms.get(rooms.size() - 1), entities);
+            if (roomsSpawned != 1 && !noEnemies) {
+                for (int i = 0; i < randint(4, 6); i++) {
+                    addEnemy(rooms.get(rooms.size() - 1), entities);
+                }
             }
         }
 
+        // while (!exitX.isEmpty() && !exitY.isEmpty()) {
+        // yPos = exitY.get(0) - startY;
+        // xPos = exitX.get(0) + 50;
+        // exitX.remove(0);
+        // exitY.remove(0);
+        // }
+
         mapScanner.close();
     }
+
+    // public void loadWalls(int xPos, int yPos, Scanner mapScanner,
+    // ArrayList<Entity> entities, ArrayList<Integer> exitX,
+    // ArrayList<Integer> exitY, String wallTypeToSpawn) {
+    // boolean loadRoom = true;
+    // boolean noEnemies = false;
+    // while (loadRoom) {
+    // String text = mapScanner.nextLine();
+    // if (text.equals("---")) {
+    // loadRoom = false;
+    // } else {
+    // for (int i = 0; i < text.length(); i++) {
+    // String subsection = text.substring(i, i + 1);
+    // if (subsection.equals("#")) {
+    // // this part extends a block instead of adding another
+    // if (entities.get(entities.size() - 1).getY() == yPos &&
+    // (xPos + i * 50) - (entities.get(entities.size() - 1).getX()
+    // + entities.get(entities.size() - 1).getLength()) == 0) {
+    // entities.get(entities.size() - 1)
+    // .setLength(entities.get(entities.size() - 1).getLength() + 50);
+    // } else {
+    // entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
+    // }
+    // } else if (subsection.equals("|")) {
+    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+    // } else if (subsection.equals("-")) {
+    // entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, ""));
+    // } else if (subsection.equals("B")) {
+    // entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
+    // } else if (subsection.equals("S")) {
+    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+    // } else if (subsection.equals("E")) {
+    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+    // exitX.add(xPos + i * 50);
+    // exitY.add(yPos);
+    // } else if (subsection.equals("$")) {
+    // entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
+    // noEnemies = true;
+    // }
+    // }
+    // yPos += 50;
+    // }
+    // }
+    // }
 
     private boolean removeEntityAt(int x, int y, ArrayList<Entity> entities) {
         for (int i = entities.size() - 1; i >= 0; i--) {
@@ -180,7 +236,35 @@ public class Map {
     public void addEnemy(Room room, ArrayList<Entity> entities) {
         int spawnX = randint(room.getX(), room.getX() + room.getLength() - 10);
         int spawnY = randint(room.getY(), room.getY() + room.getWidth() - 10);
-        entities.add(new Guard(spawnX, spawnY, 60, 60, "testAnimation/girl", 4, 8));
+
+        File enemyFile = new File("");
+        Scanner enemyScanner = new Scanner("");
+        try {
+            enemyFile = new File("enemyChances.txt");
+            enemyScanner = new Scanner(enemyFile);
+        } catch (Exception e) {
+            System.out.println("File could not be found");
+        }
+
+        int numberOfUniqueEnemies = 0;
+        while (enemyScanner.hasNext()) {
+            enemyScanner.nextLine();
+            numberOfUniqueEnemies++;
+        }
+
+        String enemyName = null;
+        while (enemyName == null) {
+            enemyScanner = loadEnemy("enemyChances.txt", randint(0, numberOfUniqueEnemies - 1));
+            if (enemyScanner.nextInt() < randint(0, 100)) {
+                enemyName = enemyScanner.next();
+            }
+        }
+
+        if (enemyName.equals("RocketGuard")) {
+            entities.add(new RocketGuard(spawnX, spawnY, 34, 44, "Guard/"));
+        } else if (enemyName.equals("Guard")) {
+            entities.add(new Guard(spawnX, spawnY, 34, 44, "Guard/"));
+        }
 
         boolean changed = true;
         while (changed) {
@@ -194,6 +278,24 @@ public class Map {
                 }
             }
         }
+    }
+
+    public Scanner loadEnemy(String fileName, int enemyNumber) {
+        Scanner enemyScanner = new Scanner("");
+        File enemyFile;
+        try {
+            enemyFile = new File(fileName);
+            enemyScanner = new Scanner(enemyFile);
+        } catch (Exception e) {
+            System.out.println("File could not be found");
+        }
+
+        int enemiesPassed = 0;
+        while (enemiesPassed < enemyNumber) {
+            enemyScanner.nextLine();
+            enemiesPassed++;
+        }
+        return enemyScanner;
     }
 
     public Scanner loadRoom(String fileName, int roomNumber) {

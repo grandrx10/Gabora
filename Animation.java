@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
+import javax.sound.sampled.*;
 
 public class Animation {
     JFrame gameWindow;
@@ -28,12 +29,10 @@ public class Animation {
         mouseListener = new BasicMouseListener();
         canvas.addMouseListener(mouseListener);
 
-        entities.add(new Player(300, 160, 60, 60, "testAnimation/girl", 4, 8));
-        // entities.add(new Guard(300, 100, 60, 60, "testAnimation/girl", 4, 8));
+        entities.add(new Player(300, 160, 34, 44, "Player/"));
+        entities.add(new Shop(300, 160, 100, 100, "shop", 5));
 
-        entities.add(new Shop(500, 160, 100, 100, "shop", 3));
-
-        map = new Map(0, 0, entities, 2);
+        map = new Map(0, 0, entities, 100);
         slowmoTracker = new SlowmoTracker(5000, 0.1);
 
         gameWindow.setVisible(true);
@@ -79,7 +78,7 @@ public class Animation {
             }
 
             for (int i = entities.size() - 1; i >= 0; i--) {
-                entities.get(i).draw(g, camera.getXRange(), camera.getYRange());
+                entities.get(i).draw(g, camera.getXRange(), camera.getYRange(), slowmoTracker);
             }
 
             for (int i = bullets.size() - 1; i >= 0; i--) {
@@ -100,8 +99,13 @@ public class Animation {
             // e.getX() + camera.getXRange(), e.getY() + camera.getYRange(), 10, 5,
             // entities.get(0).getTeam(),
             // 100, 2000, true, "bullet.png"));
-            entities.get(0).attack(e.getX() + camera.getXRange(),
-                    e.getY() + camera.getYRange(), entities, bullets);
+
+            if (entities.get(0).getInteractingWith() == null) {
+                entities.get(0).attack(e.getX() + camera.getXRange(),
+                        e.getY() + camera.getYRange(), entities, bullets);
+            } else {
+                entities.get(0).mouseInteract(e.getX(), e.getY());
+            }
         }
 
         public void mouseReleased(MouseEvent e) { // MUST be implemented even if not used!

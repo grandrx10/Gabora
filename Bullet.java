@@ -22,9 +22,11 @@ public class Bullet {
     private boolean isRemovedOnHit;
     private BufferedImage original;
     private BufferedImage picture;
+    private Entity shooter;
+    private BulletSound sound;
 
     Bullet(double x, double y, double aimX, double aimY, int r, double speed, int team,
-            int damage, int bulletRange, boolean isRemovedOnHit, String picName) {
+            int damage, int bulletRange, boolean isRemovedOnHit, String picName, Entity shooter) {
         this.x = x;
         this.y = y;
         this.startX = x;
@@ -38,6 +40,8 @@ public class Bullet {
         this.damage = damage;
         this.bulletRange = bulletRange;
         this.isRemovedOnHit = isRemovedOnHit;
+        this.shooter = shooter;
+        this.sound = new BulletSound("audio/gunshot.wav");
 
         try {
             this.original = ImageIO.read(new File("images/" + picName + ".png"));
@@ -48,26 +52,37 @@ public class Bullet {
     }
 
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
+        if (!sound.getPlayed()) {
+            sound.attackSound();
+        }
+
         this.x = this.x + this.speed * slowmoTracker.getActiveSlowAmount() * aimX
                 / Math.sqrt(Math.pow(this.aimX, 2) + Math.pow(this.aimY, 2));
         this.y = this.y + this.speed * slowmoTracker.getActiveSlowAmount() * this.aimY
                 / Math.sqrt(Math.pow(this.aimX, 2) + Math.pow(this.aimY, 2));
 
         for (int i = 0; i < entities.size() && this != null; i++) {
-            if (circRectDetect(this, entities.get(i)) && this.team != entities.get(i).getTeam()) {
+            if (circRectDetect(this, entities.get(i)) && this.team != entities.get(i).getTeam() &&
+                    entities.get(i).getTouchable()) {
                 entities.get(i).takeDamage(this.damage);
+                if (entities.get(i).getHp() <= 0 && this.shooter != null) {
+                    this.shooter.getKill();
+                }
                 if (this.isRemovedOnHit) {
-                    bullets.remove(this);
+                    remove(bullets);
                 }
             }
         }
 
         if (this != null) {
             if (distance(this.x, this.y, this.startX, this.startY) > this.bulletRange) {
-                bullets.remove(this);
+                remove(bullets);
             }
         }
+    }
 
+    public void remove(ArrayList<Bullet> bullets) {
+        bullets.remove(this);
     }
 
     public double getAngle() {
@@ -148,6 +163,14 @@ public class Bullet {
         this.picture = rotateImage(this.original, this.angle);
     }
 
+    public void setShooter(Entity shooter) {
+        this.shooter = shooter;
+    }
+
+    public void setSound(String soundName) {
+        this.sound.setShotSound(soundName);
+    }
+
     // getters
     public double getSpeed() {
         return this.speed;
@@ -163,5 +186,17 @@ public class Bullet {
 
     public double getAimY() {
         return aimY;
+    }
+
+    public Entity getShooter() {
+        return shooter;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
     }
 }

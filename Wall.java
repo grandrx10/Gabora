@@ -11,13 +11,13 @@ public class Wall extends Entity {
     private BufferedImage image;
 
     Wall(int x, int y, int length, int width, String picName) {
-        super(x, y, length, width, picName, 0, 0);
+        super(x, y, length, width, picName);
         super.setType("Wall");
         super.setTeam(-1);
     }
 
     @Override
-    public void draw(Graphics g, int xRange, int yRange) {
+    public void draw(Graphics g, int xRange, int yRange, SlowmoTracker slowmoTracker) {
         if (super.checkInRange(xRange, yRange)) {
             if (super.getPicName().equals("")) {
                 g.setColor(super.getColor());
@@ -35,7 +35,7 @@ public class Wall extends Entity {
     }
 
     @Override
-    public void loadImages(int rows, int columns) {
+    public void loadImages() {
         if (!super.getPicName().equals("")) {
             try {
                 image = ImageIO.read(new File("images/" + super.getPicName() + ".png"));

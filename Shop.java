@@ -1,8 +1,6 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Graphics;
+import java.io.File;
 import java.util.*;
-import java.awt.event.*;
-import java.io.*;
 
 public class Shop extends Wall {
     private ArrayList<Item> items;
@@ -35,15 +33,28 @@ public class Shop extends Wall {
         for (int i = 0; i < numberOfItemsOnSale; i++) {
             int randomItem = randint(0, numberOfCustomItems - 1);
             shopScanner = loadItem("items.txt", randomItem);
+            int x = 250 + i * 150;
+            int y = 460;
             String itemName = shopScanner.next();
+            int cost = shopScanner.nextInt();
+            shopScanner.nextLine(); // get rid of the space between description and cost.
+            String description = shopScanner.nextLine();
             if (itemName.equals("Boots")) {
-                items.add(new Boots(300 + i * 280, 450, 50, 50));
+                items.add(new Boots(x, y, 100, 100, cost, description));
+            } else if (itemName.equals("HealthPotion")) {
+                items.add(new HealthPotion(x, y, 100, 100, cost, description));
+            } else if (itemName.equals("Dagger")) {
+                items.add(new Dagger(x, y, 100, 100, cost, description));
+            } else if (itemName.equals("Vest")) {
+                items.add(new Vest(x, y, 100, 100, cost, description));
+            } else if (itemName.equals("JumpBoots")) {
+                items.add(new JumpBoots(x, y, 100, 100, cost, description));
             }
         }
     }
 
     @Override
-    public void draw(Graphics g, int xRange, int yRange) {
+    public void draw(Graphics g, int xRange, int yRange, SlowmoTracker slowmoTracker) {
         if (super.checkInRange(xRange, yRange)) {
             // walls are static, only have 1 image
             g.drawImage(getImage(), (int) super.getX() - xRange, (int) super.getY() - yRange,
@@ -56,6 +67,8 @@ public class Shop extends Wall {
     public void interact(Entity interactor) {
         if (interactor.getInteractingWith() == null) {
             interactor.setInteractingWith(this);
+        } else {
+            interactor.setInteractingWith(null);
         }
     }
 
@@ -92,4 +105,5 @@ public class Shop extends Wall {
     public ArrayList<Item> getItems() {
         return this.items;
     }
+
 }

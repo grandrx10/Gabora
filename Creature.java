@@ -12,28 +12,32 @@ public class Creature extends Entity {
     private int maxHp;
     private double runAccel;
     private double jumpSpeed;
-    private boolean canJump = true;
+    private int jumps = 1;
+    private int maxJumps = 1;
     private int attackCooldown = 500;
     private boolean canAttack = true;
     private long lastAttack = System.currentTimeMillis();
+    private int frameUpdate;
+    private CreatureSound sound = new CreatureSound();
 
-    Creature(int x, int y, int length, int width, String picName, int rows, int columns) {
-        super(x, y, length, width, picName, rows, columns);
+    Creature(int x, int y, int length, int width, String picName) {
+        super(x, y, length, width, picName);
         super.setType("Creature");
         super.setGravity(0.2);
         hp = 100; // 100 by default
         maxHp = hp;
+        frameUpdate = 100;
     }
 
     @Override
-    public void draw(Graphics g, int xRange, int yRange) {
+    public void draw(Graphics g, int xRange, int yRange, SlowmoTracker slowmoTracker) {
         g.setColor(Color.black);
         g.fillRect((int) super.getX() - 2 - xRange, (int) super.getY() - 22 - yRange, super.getLength() + 4, 14);
         g.setColor(Color.green);
         g.fillRect((int) super.getX() - xRange, (int) super.getY() - 20 - yRange,
                 (int) (1.0 * this.hp / this.maxHp * super.getLength()), 10);
 
-        super.draw(g, xRange, yRange);
+        super.draw(g, xRange, yRange, slowmoTracker);
     }
 
     @Override
@@ -51,8 +55,8 @@ public class Creature extends Entity {
 
     @Override
     public void jump() {
-        if (this.canJump) {
-            this.canJump = false;
+        if (this.jumps > 0) {
+            this.jumps--;
             super.setYSpeed(-jumpSpeed);
         }
     }
@@ -71,11 +75,18 @@ public class Creature extends Entity {
         }
 
         if (super.getXSpeed() > 0.5) {
+            sound.walkSound(slowmoTracker);
             super.setXSpeed(super.getXSpeed() - 0.5);
         } else if (super.getXSpeed() < -0.5) {
+            sound.walkSound(slowmoTracker);
             super.setXSpeed(super.getXSpeed() + 0.5);
         } else {
             super.setXSpeed(0);
+            sound.stopWalkSound();
+        }
+
+        if (jumps < maxJumps) {
+            sound.stopWalkSound();
         }
 
         super.update(entities, bullets, slowmoTracker);
@@ -98,17 +109,43 @@ public class Creature extends Entity {
                         super.setY(entities.get(i).getY() - super.getWidth());
                         super.setYSpeed(0);
                         if (super.getY() < entities.get(i).getY()) {
-                            this.canJump = true;
+                            this.jumps = this.maxJumps;
                         }
                     }
                 } else {
                     super.setY((super.getY() - super.getYSpeed() * slowmoTracker.getActiveSlowAmount()));
                     super.setYSpeed(0);
                     if (super.getY() < entities.get(i).getY()) {
-                        this.canJump = true;
+                        this.jumps = this.maxJumps;
                     }
                 }
             }
+        }
+
+        // Added part
+        if (super.getFrames() != null) {
+            if (!canAttack) {
+                super.setRow(Const.ATTACK);
+
+            } else if (jumps < maxJumps) {
+                super.setRow(Const.JUMP);
+
+            } else if (super.getXSpeed() != 0) {
+                super.setRow(Const.MOVE);
+
+            } else if (super.getXSpeed() == 0 && super.getYSpeed() == 0) {
+                super.setRow(Const.IDLE);
+
+            }
+            if (super.getCol() >= super.getFrames().get(super.getRow()).size()) {
+                super.setCol(0);
+            }
+            if ((System.currentTimeMillis() - super.getAnimationTime())
+                    * slowmoTracker.getActiveSlowAmount() > frameUpdate) {
+                super.setCol((super.getCol() + 1) % super.getFrames().get(super.getRow()).size());
+                super.setAnimationTime(System.currentTimeMillis());
+            }
+
         }
 
         if (this.hp <= 0) {
@@ -135,8 +172,8 @@ public class Creature extends Entity {
         return this.jumpSpeed;
     }
 
-    public boolean getCanJump() {
-        return this.canJump;
+    public int getJumps() {
+        return this.jumps;
     }
 
     public boolean getCanAttack() {
@@ -151,7 +188,27 @@ public class Creature extends Entity {
         return lastAttack;
     }
 
+    public int getMaxJumps() {
+        return this.maxJumps;
+    }
+
+    @Override
+    public int getHp() {
+        return this.hp;
+    }
+
+    public int getMaxHp() {
+        return this.maxHp;
+    }
+
     // setters
+    public void setMaxHp(int hp) {
+        this.maxHp = hp;
+        if (this.hp > this.maxHp) {
+            this.hp = this.maxHp;
+        }
+    }
+
     public void setRunAccel(double runAccel) {
         this.runAccel = runAccel;
     }
@@ -160,15 +217,30 @@ public class Creature extends Entity {
         this.jumpSpeed = jumpSpeed;
     }
 
-    public void setCanJump(boolean canJump) {
-        this.canJump = canJump;
+    public void setJumps(int jumps) {
+        this.jumps = jumps;
     }
 
     public void setCanAttack(boolean canAttack) {
         this.canAttack = canAttack;
     }
 
+    public void setAttackCooldown(int attackCooldown) {
+        this.attackCooldown = attackCooldown;
+    }
+
     public void setLastAttack(long lastAttack) {
         this.lastAttack = lastAttack;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
+        if (this.hp > maxHp) {
+            this.hp = maxHp;
+        }
+    }
+
+    public void setMaxJumps(int jumps) {
+        this.maxJumps = jumps;
     }
 }

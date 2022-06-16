@@ -6,8 +6,8 @@ abstract class Enemy extends Creature {
     private int detectRange = 0;
     private int engageRange = 0;
 
-    Enemy(int x, int y, int length, int width, String picName, int rows, int columns) {
-        super(x, y, length, width, picName, rows, columns);
+    Enemy(int x, int y, int length, int width, String picName) {
+        super(x, y, length, width, picName);
         super.setType("Enemy");
     }
 
@@ -35,9 +35,9 @@ abstract class Enemy extends Creature {
                 }
                 super.setXAccel(0);
                 super.setYAccel(0);
-            } else if (super.getXSpeed() == 0 && super.getCanJump()) {
+            } else if (super.getXSpeed() == 0 && super.getJumps() > 0) {
                 super.setYAccel(-super.getJumpSpeed());
-                super.setCanJump(false);
+                super.setJumps(super.getJumps() - 1);
             } else if (super.getX() + super.getLength() / 2 > this.getDestinationX()) {
                 super.setXAccel(-super.getRunAccel());
                 super.setYAccel(0);
