@@ -1,2 +1,2 @@
 40 Guard
-30 RocketGuard
+10 RocketGuard

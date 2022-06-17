@@ -4,14 +4,17 @@ import java.util.*;
 import java.awt.event.*;
 
 public class Door extends Wall {
+    private Sound doorOpenSound = new Sound("audio/doorOpenSound.wav");
+
     Door(int x, int y, int length, int width, String picName) {
         super(x, y, length, width, picName);
         super.setType("Door");
     }
 
     @Override
-    public void interact(Entity interactor) {
+    public void interact(Entity interactor, Map map, ArrayList<Entity> entities, Music music) {
         this.setYSpeed(-10);
+        doorOpenSound.start();
     }
 
     @Override

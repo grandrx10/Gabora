@@ -4,6 +4,7 @@ import java.awt.Color;
 public class Box extends Wall {
     private int hp;
     private int maxHp;
+    private Sound deathSound = new Sound("audio/boxBreak.wav");
 
     Box(int x, int y, int length, int width, String picName, int hp) {
         super(x, y, length, width, picName);
@@ -35,7 +36,12 @@ public class Box extends Wall {
                         (int) this.getY() + this.getWidth() / 2,
                         randint(-20, 20), randint(-30, 0), new Color(150, 75, 0)));
             }
+            deathSound();
             entities.remove(this);
         }
+    }
+
+    public void deathSound() {
+        deathSound.start();
     }
 }

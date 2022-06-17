@@ -64,12 +64,14 @@ public class Shop extends Wall {
     }
 
     @Override
-    public void interact(Entity interactor) {
+    public void interact(Entity interactor, Map map, ArrayList<Entity> entities, Music music) {
         if (interactor.getInteractingWith() == null) {
             interactor.setInteractingWith(this);
         } else {
             interactor.setInteractingWith(null);
         }
+
+        System.out.println(interactor.getInteractingWith());
     }
 
     @Override
@@ -105,5 +107,4 @@ public class Shop extends Wall {
     public ArrayList<Item> getItems() {
         return this.items;
     }
-
 }

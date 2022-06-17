@@ -1,6 +1,8 @@
 import java.util.*;
 
 public class Slash extends Bullet {
+    Sound deflectSound = new Sound("audio/defect.wav");
+
     Slash(double x, double y, double aimX, double aimY, int r, double speed, int team,
             int damage, int distance, boolean isRemovedOnHit, String picName, Entity shooter) {
         super(x, y, aimX, aimY, r, speed, team, damage, distance, isRemovedOnHit, picName, shooter);
@@ -14,8 +16,20 @@ public class Slash extends Bullet {
                 bullets.get(i).setAim(super.getAimX(), super.getAimY());
                 bullets.get(i).setTeam(super.getTeam());
                 bullets.get(i).setShooter(super.getShooter());
+                deflectSound();
             }
         }
         super.update(entities, bullets, slowmoTracker);
+    }
+
+    public void deflectSound() {
+        if (deflectSound.isRunning()) {
+            deflectSound.stop();
+            deflectSound.flush();
+            deflectSound.setFramePosition(0);
+            deflectSound.start();
+        } else {
+            deflectSound.start();
+        }
     }
 }

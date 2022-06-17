@@ -10,6 +10,7 @@ import java.io.IOException;
 public class Player extends Creature {
     private int coins;
     private BufferedImage coinImage;
+    private Sound purchaseSound = new Sound("audio/purchase.wav");
     private Font font = new Font("TimesRoman", Font.PLAIN, 20);
 
     Player(int x, int y, int length, int width, String picName) {
@@ -19,6 +20,8 @@ public class Player extends Creature {
         super.setRunAccel(0.6);
         super.setJumpSpeed(10);
         super.setTeam(0);
+        super.setMaxHp(200);
+        super.setHp(200);
         coins = 0;
 
         try {
@@ -69,8 +72,10 @@ public class Player extends Creature {
 
         Point p = MouseInfo.getPointerInfo().getLocation();
 
-        for (int i = 0; i < super.getInteractingWith().getItems().size(); i++) {
-            super.getInteractingWith().getItems().get(i).draw(g, (int) p.getX() - 5, (int) p.getY() - 30);
+        if (super.getInteractingWith().getItems() != null) {
+            for (int i = 0; i < super.getInteractingWith().getItems().size(); i++) {
+                super.getInteractingWith().getItems().get(i).draw(g, (int) p.getX() - 5, (int) p.getY() - 30);
+            }
         }
     }
 
@@ -83,7 +88,7 @@ public class Player extends Creature {
                     coins -= super.getInteractingWith().getItems().get(i).getCost();
                     super.getInteractingWith().getItems().get(i).activateItem(this);
                     super.getInteractingWith().getItems().remove(i);
-
+                    purchaseSound();
                 }
             }
         }
@@ -147,5 +152,12 @@ public class Player extends Creature {
 
     public void getKill() {
         coins++;
+    }
+
+    public void purchaseSound() {
+        purchaseSound.stop();
+        purchaseSound.flush();
+        purchaseSound.setFramePosition(0);
+        purchaseSound.start();
     }
 }

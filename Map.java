@@ -3,14 +3,26 @@ import java.awt.*;
 import java.util.*;
 import java.awt.event.*;
 import java.io.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+// possible exceptions
+import java.io.IOException;
 
 public class Map {
     private ArrayList<Room> rooms;
-    private int mapSize;
+    private boolean mapLoading = false;
+    private boolean loadingScreenDrawn = false;
     private int numberOfCustomRooms;
+    private BufferedImage loadingImage;
 
     Map(int x, int y, ArrayList<Entity> entities, int mapSize) {
         rooms = new ArrayList<Room>();
+        try {
+            loadingImage = ImageIO.read(new File("images/loadingPage.png"));
+        } catch (IOException ex) {
+            System.out.println(ex);
+            System.out.println("failed to load wall");
+        }
 
         loadMapFile(entities, x, y, mapSize);
     }
@@ -25,7 +37,7 @@ public class Map {
             System.out.println("File could not be found");
         }
 
-        mapScanner = loadRoom("rooms.txt", 0);
+        mapScanner = readRoom("rooms.txt", 0);
         while (mapScanner.hasNext()) {
             if (mapScanner.nextLine().equals("---")) {
                 numberOfCustomRooms++;
@@ -44,7 +56,7 @@ public class Map {
         int roomLength = 0;
         int roomWidth = 0;
         int roomsSpawned = 0;
-        String[] wallTypes = { "tiledWall", "woodenWall" };
+        String[] wallTypes = { "tiledWall", "woodenWall", "stoneWall" };
 
         while (roomsSpawned < mapSize) {
             roomsSpawned++;
@@ -58,7 +70,7 @@ public class Map {
             // Create a default room
             rooms.add(new Room());
             do {
-                mapScanner = loadRoom("rooms.txt", roomToSpawn);
+                mapScanner = readRoom("rooms.txt", roomToSpawn);
                 loadRoom = true;
                 while (loadRoom) {
                     String text = mapScanner.nextLine();
@@ -79,7 +91,7 @@ public class Map {
                     roomWidth = lineNum * 50;
                 }
 
-                mapScanner = loadRoom("rooms.txt", roomToSpawn);
+                mapScanner = readRoom("rooms.txt", roomToSpawn);
                 loadRoom = true;
                 lineNum = 0;
                 if (!exitX.isEmpty() && !exitY.isEmpty()) {
@@ -122,106 +134,146 @@ public class Map {
                 loadRoom = false;
                 System.out.println("Triggered wall");
             }
+            if (loadRoom) {
+                loadWalls(xPos, yPos, mapScanner, entities, exitX, exitY, wallTypeToSpawn, roomsSpawned);
+            }
 
-            boolean noEnemies = false;
+        }
+
+        // make sure to close all of the exits in the end after the max number of levels
+        // have been loaded
+        while (!exitX.isEmpty() && !exitY.isEmpty()) {
+            String wallTypeToSpawn = wallTypes[randint(0, wallTypes.length - 1)];
+            // Set the map scanner to the position where the room is in the file
+            boolean roomFits = false;
+            boolean loadRoom = true;
+            // Create a default room
+            rooms.add(new Room());
+            mapScanner = readRoom("endRooms.txt", 0);
+            loadRoom = true;
             while (loadRoom) {
                 String text = mapScanner.nextLine();
                 if (text.equals("---")) {
                     loadRoom = false;
                 } else {
+                    roomLength = text.length() * 50;
                     for (int i = 0; i < text.length(); i++) {
                         String subsection = text.substring(i, i + 1);
-                        if (subsection.equals("#")) {
-                            // this part extends a block instead of adding another
-                            if (entities.get(entities.size() - 1).getY() == yPos &&
-                                    (xPos + i * 50) - (entities.get(entities.size() - 1).getX()
-                                            + entities.get(entities.size() - 1).getLength()) == 0) {
-                                entities.get(entities.size() - 1)
-                                        .setLength(entities.get(entities.size() - 1).getLength() + 50);
-                            } else {
-                                entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
-                            }
-                        } else if (subsection.equals("|")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-                        } else if (subsection.equals("-")) {
-                            entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, ""));
-                        } else if (subsection.equals("B")) {
-                            entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
-                        } else if (subsection.equals("S")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-                        } else if (subsection.equals("E")) {
-                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-                            exitX.add(xPos + i * 50);
-                            exitY.add(yPos);
-                        } else if (subsection.equals("$")) {
-                            entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
-                            noEnemies = true;
+                        if (subsection.equals("S")) {
+                            startX = xPos + i * 50;
+                            startY = lineNum * 50;
                         }
                     }
                     yPos += 50;
+                    lineNum++;
                 }
+                roomWidth = lineNum * 50;
             }
 
-            if (roomsSpawned != 1 && !noEnemies) {
-                for (int i = 0; i < randint(4, 6); i++) {
-                    addEnemy(rooms.get(rooms.size() - 1), entities);
-                }
+            mapScanner = readRoom("endRooms.txt", 0);
+            loadRoom = true;
+            lineNum = 0;
+            if (!exitX.isEmpty() && !exitY.isEmpty()) {
+                yPos = exitY.get(0) - startY;
+                xPos = exitX.get(0) + 50;
+            } else {
+                xPos = x;
+                yPos = y;
+            }
+            // Adjust last room
+            rooms.get(rooms.size() - 1).setX(xPos);
+            rooms.get(rooms.size() - 1).setY(yPos);
+            rooms.get(rooms.size() - 1).setLength(roomLength);
+            rooms.get(rooms.size() - 1).setWidth(roomWidth);
+
+            if (rooms.get(rooms.size() - 1).overlaps(rooms)) {
+                roomFits = false;
+            } else {
+                roomFits = true;
+            }
+
+            if (!roomFits) {
+                entities.add(new Wall(exitX.get(0), exitY.get(0), 50, 50, wallTypeToSpawn));
+                entities.add(new Wall(exitX.get(0), exitY.get(0) + 50, 50, 50, wallTypeToSpawn));
+                removeEntityAt(exitX.get(0) + 10, exitY.get(0), entities);
+                removeEntityAt(exitX.get(0) + 10, exitY.get(0) + 50, entities);
+                exitX.remove(0);
+                exitY.remove(0);
+                rooms.remove(rooms.size() - 1);
+                loadRoom = false;
+            } else if (!exitX.isEmpty() && !exitY.isEmpty()) {
+                xPos = exitX.get(0) + 50;
+                yPos = exitY.get(0) - startY;
+                exitX.remove(0);
+                exitY.remove(0);
+                mapScanner = readRoom("endRooms.txt", 0);
+                loadWalls(xPos, yPos, mapScanner, entities, exitX, exitY, "tiledWall", roomsSpawned);
             }
         }
-
-        // while (!exitX.isEmpty() && !exitY.isEmpty()) {
-        // yPos = exitY.get(0) - startY;
-        // xPos = exitX.get(0) + 50;
-        // exitX.remove(0);
-        // exitY.remove(0);
-        // }
 
         mapScanner.close();
     }
 
-    // public void loadWalls(int xPos, int yPos, Scanner mapScanner,
-    // ArrayList<Entity> entities, ArrayList<Integer> exitX,
-    // ArrayList<Integer> exitY, String wallTypeToSpawn) {
-    // boolean loadRoom = true;
-    // boolean noEnemies = false;
-    // while (loadRoom) {
-    // String text = mapScanner.nextLine();
-    // if (text.equals("---")) {
-    // loadRoom = false;
-    // } else {
-    // for (int i = 0; i < text.length(); i++) {
-    // String subsection = text.substring(i, i + 1);
-    // if (subsection.equals("#")) {
-    // // this part extends a block instead of adding another
-    // if (entities.get(entities.size() - 1).getY() == yPos &&
-    // (xPos + i * 50) - (entities.get(entities.size() - 1).getX()
-    // + entities.get(entities.size() - 1).getLength()) == 0) {
-    // entities.get(entities.size() - 1)
-    // .setLength(entities.get(entities.size() - 1).getLength() + 50);
-    // } else {
-    // entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
-    // }
-    // } else if (subsection.equals("|")) {
-    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-    // } else if (subsection.equals("-")) {
-    // entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, ""));
-    // } else if (subsection.equals("B")) {
-    // entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
-    // } else if (subsection.equals("S")) {
-    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-    // } else if (subsection.equals("E")) {
-    // entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
-    // exitX.add(xPos + i * 50);
-    // exitY.add(yPos);
-    // } else if (subsection.equals("$")) {
-    // entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
-    // noEnemies = true;
-    // }
-    // }
-    // yPos += 50;
-    // }
-    // }
-    // }
+    public void loadWalls(int xPos, int yPos, Scanner mapScanner,
+            ArrayList<Entity> entities, ArrayList<Integer> exitX,
+            ArrayList<Integer> exitY, String wallTypeToSpawn, int roomsSpawned) {
+        boolean loadRoom = true;
+        boolean noEnemies = false;
+        while (loadRoom) {
+            String text = mapScanner.nextLine();
+            if (text.equals("---")) {
+                loadRoom = false;
+            } else {
+                for (int i = 0; i < text.length(); i++) {
+                    String subsection = text.substring(i, i + 1);
+                    if (subsection.equals("#")) {
+                        // this part extends a block instead of adding another
+                        if (entities.get(entities.size() - 1).getY() == yPos &&
+                                (xPos + i * 50) - (entities.get(entities.size() - 1).getX()
+                                        + entities.get(entities.size() - 1).getLength()) == 0) {
+                            entities.get(entities.size() - 1)
+                                    .setLength(entities.get(entities.size() - 1).getLength() + 50);
+                        } else {
+                            entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
+                        }
+                    } else if (subsection.equals("|")) {
+                        entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+                    } else if (subsection.equals("-")) {
+                        entities.add(new Platform(xPos + i * 50 + 10, yPos + 20, 30, 10, "platform"));
+                    } else if (subsection.equals("B")) {
+                        entities.add(new Box(xPos + i * 50, yPos, 50, 50, "box", 10));
+                    } else if (subsection.equals("S")) {
+                        if (roomsSpawned != 1) {
+                            entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+                        } else {
+                            entities.add(new Wall(xPos + i * 50, yPos, 50, 50, wallTypeToSpawn));
+                            entities.add(new Wall(xPos + i * 50, yPos + 50, 50, 50, wallTypeToSpawn));
+                        }
+                    } else if (subsection.equals("E")) {
+                        entities.add(new Door(xPos + i * 50 + 10, yPos, 30, 50, "door"));
+                        exitX.add(xPos + i * 50);
+                        exitY.add(yPos);
+                    } else if (subsection.equals("$")) {
+                        entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
+                        noEnemies = true;
+                    } else if (subsection.equals("$")) {
+                        entities.add(new Shop(xPos + i * 50 + 10, yPos, 100, 100, "shop", 5));
+                        noEnemies = true;
+                    } else if (subsection.equals("L")) {
+                        entities.add(new Button(xPos + i * 50 + 10, yPos, 50, 50, "lever"));
+                        noEnemies = true;
+                    }
+                }
+                yPos += 50;
+            }
+        }
+
+        if (roomsSpawned != 1 && !noEnemies) {
+            for (int i = 0; i < randint(4, 6); i++) {
+                addEnemy(rooms.get(rooms.size() - 1), entities);
+            }
+        }
+    }
 
     private boolean removeEntityAt(int x, int y, ArrayList<Entity> entities) {
         for (int i = entities.size() - 1; i >= 0; i--) {
@@ -255,7 +307,7 @@ public class Map {
         String enemyName = null;
         while (enemyName == null) {
             enemyScanner = loadEnemy("enemyChances.txt", randint(0, numberOfUniqueEnemies - 1));
-            if (enemyScanner.nextInt() < randint(0, 100)) {
+            if (enemyScanner.nextInt() > randint(0, 100)) {
                 enemyName = enemyScanner.next();
             }
         }
@@ -298,7 +350,7 @@ public class Map {
         return enemyScanner;
     }
 
-    public Scanner loadRoom(String fileName, int roomNumber) {
+    public Scanner readRoom(String fileName, int roomNumber) {
         Scanner mapScanner = new Scanner("");
         File mapFile;
         try {
@@ -335,7 +387,27 @@ public class Map {
         return (int) Math.floor(Math.random() * (max - min + 1) + min);
     }
 
+    public void drawLoadingScreen(Graphics g) {
+        g.drawImage(loadingImage, 0, 0, null);
+    }
+
     public ArrayList<Room> getRooms() {
         return this.rooms;
+    }
+
+    public boolean getMapLoading() {
+        return mapLoading;
+    }
+
+    public boolean getLoadingScreenDrawn() {
+        return this.loadingScreenDrawn;
+    }
+
+    public void setMapLoading(boolean mapLoading) {
+        this.mapLoading = mapLoading;
+    }
+
+    public void setLoadingScreenDrawn(boolean loadingScreenDrawn) {
+        this.loadingScreenDrawn = loadingScreenDrawn;
     }
 }

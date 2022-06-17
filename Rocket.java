@@ -8,7 +8,7 @@ public class Rocket extends Bullet {
 
     @Override
     public void remove(ArrayList<Bullet> bullets) {
-        bullets.add(new Bullet(getX(), getY(), getAimX(), getAimY(), 100, 0.1, -2,
+        bullets.add(new Bullet(getX(), getY(), getAimX(), getAimY(), 100, 0.1, this.getTeam(),
                 100, 1, false, "explosion", getShooter()));
         bullets.get(bullets.size() - 1).setSound("audio/explosion.wav");
         bullets.remove(this);

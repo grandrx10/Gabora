@@ -14,6 +14,9 @@ public class Animation {
     SlowmoTracker slowmoTracker;
     MovementKeyListener keyListener;
     BasicMouseListener mouseListener;
+    long lastUpdateTime = System.currentTimeMillis();
+    int fps, displayFps;
+    Music backgroundMusic;
 
     Animation() {
         gameWindow = new JFrame("Game Window");
@@ -29,11 +32,15 @@ public class Animation {
         mouseListener = new BasicMouseListener();
         canvas.addMouseListener(mouseListener);
 
-        entities.add(new Player(300, 160, 34, 44, "Player/"));
-        entities.add(new Shop(300, 160, 100, 100, "shop", 5));
+        entities.add(new Player(100, 100, 34, 44, "Player/"));
+        // entities.add(new Shop(300, 160, 100, 100, "shop", 5));
+        // entities.add(new Button(300, 160, 50, 50, ""));
 
-        map = new Map(0, 0, entities, 100);
+        map = new Map(0, 0, entities, 10);
         slowmoTracker = new SlowmoTracker(5000, 0.1);
+
+        backgroundMusic = new Music("audio/soundtracks/BreathOfASerpent.wav");
+        backgroundMusic.start();
 
         gameWindow.setVisible(true);
     }
@@ -61,6 +68,11 @@ public class Animation {
             }
             camera.update(entities);
 
+            if (System.currentTimeMillis() - lastUpdateTime > 1000) {
+                displayFps = fps;
+                fps = 0;
+                lastUpdateTime = System.currentTimeMillis();
+            }
         } // 5. Repeat
     }
 
@@ -73,9 +85,9 @@ public class Animation {
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            for (int i = 0; i < map.getRooms().size(); i++) {
-                map.getRooms().get(i).draw(g, camera.getXRange(), camera.getYRange());
-            }
+            // draw background colour for now
+            g.setColor(Color.GRAY);
+            g.fillRect(0, 0, Const.WIDTH, Const.HEIGHT);
 
             for (int i = entities.size() - 1; i >= 0; i--) {
                 entities.get(i).draw(g, camera.getXRange(), camera.getYRange(), slowmoTracker);
@@ -83,6 +95,20 @@ public class Animation {
 
             for (int i = bullets.size() - 1; i >= 0; i--) {
                 bullets.get(i).draw(g, camera.getXRange(), camera.getYRange());
+            }
+
+            g.setColor(Color.black);
+            g.drawString(Integer.toString(displayFps), 10, 30);
+            fps++;
+
+            if (map.getMapLoading()) {
+                if (map.getLoadingScreenDrawn()) {
+                    entities.get(0).checkInteract(entities, map, backgroundMusic);
+                    map.setLoadingScreenDrawn(false);
+                } else {
+                    map.drawLoadingScreen(g);
+                    map.setLoadingScreenDrawn(true);
+                }
             }
         }
     }
@@ -129,17 +155,18 @@ public class Animation {
             } else if (keyChar == 'w') {
                 entities.get(0).jump();
             } else if (keyChar == 'e') {
-                entities.get(0).checkInteract(entities);
+                entities.get(0).checkInteract(entities, map, backgroundMusic);
             }
 
             int key = e.getKeyCode();
             if (key == 16) {
                 slowmoTracker.activateSlow();
-            } else if (key == 32) {
-                Point p = MouseInfo.getPointerInfo().getLocation();
-                entities.get(0).dash(p.getX() + camera.getXRange(),
-                        p.getY() + camera.getYRange(), entities, bullets);
             }
+            // else if (key == 32) {
+            // Point p = MouseInfo.getPointerInfo().getLocation();
+            // entities.get(0).dash(p.getX() + camera.getXRange(),
+            // p.getY() + camera.getYRange(), entities, bullets);
+            // }
         }
 
         public void keyReleased(KeyEvent e) {

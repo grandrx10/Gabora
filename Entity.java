@@ -140,10 +140,10 @@ public class Entity {
         return false;
     }
 
-    public void checkInteract(ArrayList<Entity> entities) {
+    public void checkInteract(ArrayList<Entity> entities, Map map, Music music) {
         for (int i = 0; i < entities.size(); i++) {
             if (rectRectDetect(this, entities.get(i), 50)) {
-                entities.get(i).interact(this);
+                entities.get(i).interact(this, map, entities, music);
             }
         }
     }
@@ -156,7 +156,7 @@ public class Entity {
         return (int) Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-    public void interact(Entity interactor) {
+    public void interact(Entity interactor, Map map, ArrayList<Entity> entities, Music music) {
     }
 
     public void takeDamage(int damage) { // make abstract later.
@@ -182,6 +182,10 @@ public class Entity {
 
     public void getKill() {
 
+    }
+
+    public void removeThis(ArrayList<Entity> entities) {
+        entities.remove(this);
     }
 
     // getters

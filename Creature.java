@@ -154,13 +154,20 @@ public class Creature extends Entity {
                         (int) this.getY() + this.getWidth() / 2,
                         randint(-20, 20), randint(-30, 0), Color.RED));
             }
-            entities.remove(this);
+            sound.deathSound();
+            removeThis(entities);
         }
     }
 
     @Override
     public void takeDamage(int damage) {
         this.hp -= damage;
+    }
+
+    @Override
+    public void removeThis(ArrayList<Entity> entities) {
+        sound.stopWalkSound();
+        super.removeThis(entities);
     }
 
     // getters
