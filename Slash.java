@@ -12,7 +12,8 @@ public class Slash extends Bullet {
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
         for (int i = 0; i < bullets.size(); i++) {
             if (super.circCircDetect(bullets.get(i), this) && this != bullets.get(i)
-                    && super.getTeam() != bullets.get(i).getTeam()) {
+                    && super.getTeam() != bullets.get(i).getTeam()
+                    && !bullets.get(i).getClass().getName().equals("Slash")) {
                 bullets.get(i).setAim(super.getAimX(), super.getAimY());
                 bullets.get(i).setTeam(super.getTeam());
                 bullets.get(i).setShooter(super.getShooter());

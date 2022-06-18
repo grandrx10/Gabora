@@ -1,37 +1,30 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-import java.awt.event.*;
 
 public class Room {
-    private int id;
-    private int x, y, buildX, buildY;
+    private int x, y;
     private int length, width;
-    private ArrayList<Connector> connectors;
 
-    Room(int id, int x, int y, int length, int width) {
+    Room(int x, int y, int length, int width) {
         this.x = x;
         this.y = y;
-        this.buildX = x;
-        this.buildY = y;
         this.length = length;
         this.width = width;
-        this.id = id;
     }
 
     Room() {
         this.x = 0;
         this.y = 0;
-        this.buildX = 0;
-        this.buildY = 0;
         this.length = 0;
         this.width = 0;
-        this.id = 0;
     }
 
     public void draw(Graphics g, int xRange, int yRange) {
+
         g.setColor(Color.GRAY);
-        g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length, this.width);
+        g.fillRect((int) this.x - xRange, (int) this.y - yRange, this.length,
+                this.width);
     }
 
     public boolean overlaps(ArrayList<Room> rooms) {

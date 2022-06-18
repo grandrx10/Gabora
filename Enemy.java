@@ -23,7 +23,7 @@ abstract class Enemy extends Creature {
         }
     }
 
-    public void search(ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
+    public void search(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
         if (this.getDestinationX() != 0 && this.getDestinationY() != 0) {
             if (super.distance(super.getX() + super.getLength() / 2, super.getY() + super.getWidth() / 2,
                     this.getDestinationX(), this.getDestinationY()) < this.getEngageRange()) {
@@ -31,13 +31,14 @@ abstract class Enemy extends Creature {
                 if (super.getCanAttack()) {
                     attack(entities, bullets);
                     super.setCanAttack(false);
-                    super.setLastAttack(System.currentTimeMillis());
+                    super.setLastAttack(slowmoTracker.getGameTime());
                 }
                 super.setXAccel(0);
                 super.setYAccel(0);
             } else if (super.getXSpeed() == 0 && super.getJumps() > 0) {
                 super.setYAccel(-super.getJumpSpeed());
                 super.setJumps(super.getJumps() - 1);
+                super.checkInteract(entities);
             } else if (super.getX() + super.getLength() / 2 > this.getDestinationX()) {
                 super.setXAccel(-super.getRunAccel());
                 super.setYAccel(0);

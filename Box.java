@@ -11,10 +11,11 @@ public class Box extends Wall {
         super.setGravity(0.2);
         this.hp = hp;
         this.maxHp = hp;
+        super.setType("Box");
     }
 
     @Override
-    public void takeDamage(int damage) {
+    public void takeDamage(double damage) {
         this.hp -= damage;
     }
 

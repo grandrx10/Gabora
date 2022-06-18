@@ -5,7 +5,7 @@ public class Vest extends Item {
 
     @Override
     public void activateItem(Creature user) {
-        user.setMaxHp(user.getMaxHp() + 20);
-        user.setHp(user.getHp() + 20);
+        user.setMaxHp(user.getMaxHp() + 40);
+        user.setHp(user.getHp() + 40);
     }
 }

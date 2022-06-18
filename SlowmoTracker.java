@@ -6,10 +6,12 @@ public class SlowmoTracker {
     private double slowAmount;
     private double activeSlowAmount = 1;
     private SlowmoTrackerSound sound = new SlowmoTrackerSound();
+    private double gameTime;
 
     SlowmoTracker(double timeSlowDuration, double slowAmount) {
         this.timeSlowDuration = timeSlowDuration;
         this.slowAmount = slowAmount;
+        this.gameTime = 0;
     }
 
     public void activateSlow() {
@@ -26,5 +28,13 @@ public class SlowmoTracker {
 
     public double getActiveSlowAmount() {
         return activeSlowAmount;
+    }
+
+    public double getGameTime() {
+        return this.gameTime;
+    }
+
+    public void increaseGameTime(double amount) {
+        gameTime += amount;
     }
 }

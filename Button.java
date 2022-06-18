@@ -19,8 +19,9 @@ public class Button extends Wall {
             interactor.setX(100);
             interactor.setY(100);
             map.setMapLoading(false);
-            map = new Map(0, 0, entities, 10);
-            music.loadNewSong("audio/soundtracks/BreathOfASerpent.wav");
+            map.emptyRooms();
+            map.recreate(0, 0, 10, entities);
+            music.loadRandomSong();
             music.start();
         } else {
             map.setMapLoading(true);

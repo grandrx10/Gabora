@@ -33,13 +33,11 @@ public class Animation {
         canvas.addMouseListener(mouseListener);
 
         entities.add(new Player(100, 100, 34, 44, "Player/"));
-        // entities.add(new Shop(300, 160, 100, 100, "shop", 5));
-        // entities.add(new Button(300, 160, 50, 50, ""));
 
         map = new Map(0, 0, entities, 10);
         slowmoTracker = new SlowmoTracker(5000, 0.1);
 
-        backgroundMusic = new Music("audio/soundtracks/BreathOfASerpent.wav");
+        backgroundMusic = new Music();
         backgroundMusic.start();
 
         gameWindow.setVisible(true);
@@ -55,6 +53,8 @@ public class Animation {
                 Thread.sleep(Const.FRAME_PERIOD);
             } catch (Exception e) {
             }
+
+            slowmoTracker.increaseGameTime(1 * slowmoTracker.getActiveSlowAmount());
 
             // any animations after
             for (int i = 0; i < bullets.size(); i++) {
@@ -86,8 +86,12 @@ public class Animation {
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             // draw background colour for now
-            g.setColor(Color.GRAY);
+            g.setColor(Color.black);
             g.fillRect(0, 0, Const.WIDTH, Const.HEIGHT);
+
+            for (int i = map.getRooms().size() - 1; i >= 0; i--) {
+                map.getRooms().get(i).draw(g, camera.getXRange(), camera.getYRange());
+            }
 
             for (int i = entities.size() - 1; i >= 0; i--) {
                 entities.get(i).draw(g, camera.getXRange(), camera.getYRange(), slowmoTracker);
@@ -128,7 +132,7 @@ public class Animation {
 
             if (entities.get(0).getInteractingWith() == null) {
                 entities.get(0).attack(e.getX() + camera.getXRange(),
-                        e.getY() + camera.getYRange(), entities, bullets);
+                        e.getY() + camera.getYRange(), entities, bullets, slowmoTracker);
             } else {
                 entities.get(0).mouseInteract(e.getX(), e.getY());
             }

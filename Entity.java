@@ -148,6 +148,14 @@ public class Entity {
         }
     }
 
+    public void checkInteract(ArrayList<Entity> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            if (rectRectDetect(this, entities.get(i), 50)) {
+                entities.get(i).interact(this, entities);
+            }
+        }
+    }
+
     public double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
     }
@@ -159,7 +167,10 @@ public class Entity {
     public void interact(Entity interactor, Map map, ArrayList<Entity> entities, Music music) {
     }
 
-    public void takeDamage(int damage) { // make abstract later.
+    public void interact(Entity interactor, ArrayList<Entity> entities) {
+    }
+
+    public void takeDamage(double damage) { // make abstract later.
     }
 
     public void jump() {
@@ -168,7 +179,8 @@ public class Entity {
     public void move(String dir) {
     }
 
-    public void attack(int aimX, int aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
+    public void attack(int aimX, int aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets,
+            SlowmoTracker slowmoTracker) {
 
     }
 
@@ -253,7 +265,7 @@ public class Entity {
         return null;
     }
 
-    public int getHp() {
+    public double getHp() {
         return 100;
     }
 

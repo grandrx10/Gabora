@@ -5,6 +5,6 @@ public class Dagger extends Item {
 
     @Override
     public void activateItem(Creature user) {
-        user.setAttackCooldown(user.getAttackCooldown() - 100);
+        user.setAttackCooldown(user.getAttackCooldown() - 5);
     }
 }

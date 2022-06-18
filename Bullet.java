@@ -64,7 +64,12 @@ public class Bullet {
         for (int i = 0; i < entities.size() && this != null; i++) {
             if (circRectDetect(this, entities.get(i)) && this.team != entities.get(i).getTeam() &&
                     entities.get(i).getTouchable()) {
-                entities.get(i).takeDamage(this.damage);
+
+                if (!this.isRemovedOnHit) {
+                    entities.get(i).takeDamage(this.damage * slowmoTracker.getActiveSlowAmount());
+                } else {
+                    entities.get(i).takeDamage(this.damage);
+                }
                 if (entities.get(i).getHp() <= 0 && this.shooter != null) {
                     this.shooter.getKill();
                 }

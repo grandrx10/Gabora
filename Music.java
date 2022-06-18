@@ -31,6 +31,10 @@ public class Music {
         }
     }
 
+    Music() {
+        loadRandomSong();
+    }
+
     // ------------------------------------------------------------------------------
     public void start() {
         this.music.start();
@@ -65,5 +69,17 @@ public class Music {
         } catch (LineUnavailableException ex) {
             System.out.println("Audio feed already in use!");
         }
+    }
+
+    public void loadRandomSong() {
+        String[] soundtracks = { "BreathOfASerpent.wav", "Ink.wav" };
+        // stop();
+        String randomSong = soundtracks[randint(0, soundtracks.length - 1)];
+        loadNewSong("audio/soundtracks/" + randomSong);
+        System.out.println(randomSong);
+    }
+
+    public int randint(int min, int max) {
+        return (int) Math.floor(Math.random() * (max - min + 1) + min);
     }
 }

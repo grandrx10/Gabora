@@ -20,8 +20,8 @@ public class Player extends Creature {
         super.setRunAccel(0.6);
         super.setJumpSpeed(10);
         super.setTeam(0);
-        super.setMaxHp(200);
-        super.setHp(200);
+        super.setMaxHp(100);
+        super.setHp(100);
         coins = 0;
 
         try {
@@ -46,14 +46,14 @@ public class Player extends Creature {
         if (super.getCanAttack()) {
             g.setColor(Color.black);
             g.fillRect((int) super.getX() - 2 - xRange, (int) super.getY() - 12 - yRange, super.getLength() + 4, 7);
-            g.setColor(Color.blue);
+            g.setColor(Color.red);
             g.fillRect((int) super.getX() - xRange, (int) super.getY() - 10 - yRange, super.getLength(), 3);
         } else {
             g.setColor(Color.black);
             g.fillRect((int) super.getX() - 2 - xRange, (int) super.getY() - 12 - yRange, super.getLength() + 4, 7);
             g.setColor(Color.white);
             g.fillRect((int) super.getX() - xRange, (int) super.getY() - 10 - yRange,
-                    (int) (1.0 * (System.currentTimeMillis() - getLastAttack()) * slowmoTracker.getActiveSlowAmount()
+                    (int) (1.0 * (slowmoTracker.getGameTime() - getLastAttack())
                             / super.getAttackCooldown()
                             * super.getLength()),
                     3);
@@ -72,7 +72,7 @@ public class Player extends Creature {
 
         Point p = MouseInfo.getPointerInfo().getLocation();
 
-        if (super.getInteractingWith().getItems() != null) {
+        if (super.getInteractingWith() != null && super.getInteractingWith().getItems() != null) {
             for (int i = 0; i < super.getInteractingWith().getItems().size(); i++) {
                 super.getInteractingWith().getItems().get(i).draw(g, (int) p.getX() - 5, (int) p.getY() - 30);
             }
@@ -95,15 +95,16 @@ public class Player extends Creature {
     }
 
     @Override
-    public void attack(int aimX, int aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets) {
+    public void attack(int aimX, int aimY, ArrayList<Entity> entities, ArrayList<Bullet> bullets,
+            SlowmoTracker slowmoTracker) {
         if (super.getCanAttack()) {
             bullets.add(new Slash(this.getX() + this.getLength() / 2,
                     this.getY() + this.getWidth() / 2,
                     aimX, aimY, 100, 5,
                     this.getTeam(),
-                    10, 100, false, "slash", this));
+                    10, 100, false, "slashRed", this));
             super.setCanAttack(false);
-            super.setLastAttack(System.currentTimeMillis());
+            super.setLastAttack(slowmoTracker.getGameTime());
         }
     }
 

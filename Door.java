@@ -18,6 +18,12 @@ public class Door extends Wall {
     }
 
     @Override
+    public void interact(Entity interactor, ArrayList<Entity> entities) {
+        this.setYSpeed(-10);
+        doorOpenSound.start();
+    }
+
+    @Override
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
         this.setX(this.getX() + this.getXSpeed() * slowmoTracker.getActiveSlowAmount());
         this.setY(this.getY() + this.getYSpeed() * slowmoTracker.getActiveSlowAmount());

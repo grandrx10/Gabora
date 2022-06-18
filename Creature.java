@@ -8,15 +8,15 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Creature extends Entity {
-    private int hp;
-    private int maxHp;
+    private double hp;
+    private double maxHp;
     private double runAccel;
     private double jumpSpeed;
     private int jumps = 1;
     private int maxJumps = 1;
-    private int attackCooldown = 500;
+    private int attackCooldown = 40;
     private boolean canAttack = true;
-    private long lastAttack = System.currentTimeMillis();
+    private double lastAttack = System.currentTimeMillis();
     private int frameUpdate;
     private CreatureSound sound = new CreatureSound();
 
@@ -63,8 +63,7 @@ public class Creature extends Entity {
 
     @Override
     public void update(ArrayList<Entity> entities, ArrayList<Bullet> bullets, SlowmoTracker slowmoTracker) {
-        if ((System.currentTimeMillis() - lastAttack)
-                * slowmoTracker.getActiveSlowAmount() > attackCooldown) {
+        if ((slowmoTracker.getGameTime() - lastAttack) > attackCooldown) {
             canAttack = true;
         }
 
@@ -160,7 +159,7 @@ public class Creature extends Entity {
     }
 
     @Override
-    public void takeDamage(int damage) {
+    public void takeDamage(double damage) {
         this.hp -= damage;
     }
 
@@ -191,7 +190,7 @@ public class Creature extends Entity {
         return attackCooldown;
     }
 
-    public long getLastAttack() {
+    public double getLastAttack() {
         return lastAttack;
     }
 
@@ -200,16 +199,16 @@ public class Creature extends Entity {
     }
 
     @Override
-    public int getHp() {
+    public double getHp() {
         return this.hp;
     }
 
-    public int getMaxHp() {
+    public double getMaxHp() {
         return this.maxHp;
     }
 
     // setters
-    public void setMaxHp(int hp) {
+    public void setMaxHp(double hp) {
         this.maxHp = hp;
         if (this.hp > this.maxHp) {
             this.hp = this.maxHp;
@@ -236,11 +235,11 @@ public class Creature extends Entity {
         this.attackCooldown = attackCooldown;
     }
 
-    public void setLastAttack(long lastAttack) {
+    public void setLastAttack(double lastAttack) {
         this.lastAttack = lastAttack;
     }
 
-    public void setHp(int hp) {
+    public void setHp(double hp) {
         this.hp = hp;
         if (this.hp > maxHp) {
             this.hp = maxHp;

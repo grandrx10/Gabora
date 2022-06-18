@@ -12,13 +12,13 @@ public class Map {
     private ArrayList<Room> rooms;
     private boolean mapLoading = false;
     private boolean loadingScreenDrawn = false;
-    private int numberOfCustomRooms;
+    private int numberOfEnemies = 2;
     private BufferedImage loadingImage;
 
     Map(int x, int y, ArrayList<Entity> entities, int mapSize) {
         rooms = new ArrayList<Room>();
         try {
-            loadingImage = ImageIO.read(new File("images/loadingPage.png"));
+            loadingImage = ImageIO.read(new File("images/backgrounds/loadingPage.png"));
         } catch (IOException ex) {
             System.out.println(ex);
             System.out.println("failed to load wall");
@@ -28,6 +28,7 @@ public class Map {
     }
 
     public void loadMapFile(ArrayList<Entity> entities, int x, int y, int mapSize) {
+        int numberOfCustomRooms = 0;
         File mapFile = new File("");
         Scanner mapScanner = new Scanner("");
         try {
@@ -56,7 +57,7 @@ public class Map {
         int roomLength = 0;
         int roomWidth = 0;
         int roomsSpawned = 0;
-        String[] wallTypes = { "tiledWall", "woodenWall", "stoneWall" };
+        String[] wallTypes = { "tiledWall", "woodenWall", "stoneWall", "cobbleWall", "brickWall" };
 
         while (roomsSpawned < mapSize) {
             roomsSpawned++;
@@ -228,7 +229,8 @@ public class Map {
                     String subsection = text.substring(i, i + 1);
                     if (subsection.equals("#")) {
                         // this part extends a block instead of adding another
-                        if (entities.get(entities.size() - 1).getY() == yPos &&
+                        if (entities.get(entities.size() - 1).getType().equals("Wall")
+                                && entities.get(entities.size() - 1).getY() == yPos &&
                                 (xPos + i * 50) - (entities.get(entities.size() - 1).getX()
                                         + entities.get(entities.size() - 1).getLength()) == 0) {
                             entities.get(entities.size() - 1)
@@ -269,7 +271,16 @@ public class Map {
         }
 
         if (roomsSpawned != 1 && !noEnemies) {
-            for (int i = 0; i < randint(4, 6); i++) {
+            int min = 0;
+            int max = 0;
+            if (numberOfEnemies < 2) {
+                min = 0;
+                max = 4;
+            } else {
+                min = numberOfEnemies - 2;
+                max = numberOfEnemies + 2;
+            }
+            for (int i = 0; i < randint(min, max); i++) {
                 addEnemy(rooms.get(rooms.size() - 1), entities);
             }
         }
@@ -316,6 +327,8 @@ public class Map {
             entities.add(new RocketGuard(spawnX, spawnY, 34, 44, "Guard/"));
         } else if (enemyName.equals("Guard")) {
             entities.add(new Guard(spawnX, spawnY, 34, 44, "Guard/"));
+        } else if (enemyName.equals("SwordGuard")) {
+            entities.add(new SwordGuard(spawnX, spawnY, 34, 44, "Guard/"));
         }
 
         boolean changed = true;
@@ -370,6 +383,12 @@ public class Map {
         return mapScanner;
     }
 
+    public void recreate(int x, int y, int mapSize, ArrayList<Entity> entities) {
+        rooms.clear();
+        numberOfEnemies += 2;
+        loadMapFile(entities, x, y, mapSize);
+    }
+
     public boolean rectRectDetect(Entity rect, Entity rect2) {
         double leftSide = rect.getX();
         double rightSide = rect.getX() + rect.getLength();
@@ -391,6 +410,10 @@ public class Map {
         g.drawImage(loadingImage, 0, 0, null);
     }
 
+    public void emptyRooms() {
+        rooms.clear();
+    }
+
     public ArrayList<Room> getRooms() {
         return this.rooms;
     }
@@ -403,11 +426,19 @@ public class Map {
         return this.loadingScreenDrawn;
     }
 
+    public int getNumberOfEnemies() {
+        return numberOfEnemies;
+    }
+
     public void setMapLoading(boolean mapLoading) {
         this.mapLoading = mapLoading;
     }
 
     public void setLoadingScreenDrawn(boolean loadingScreenDrawn) {
         this.loadingScreenDrawn = loadingScreenDrawn;
+    }
+
+    public void setNumberOfEnemies(int numberOfEnemies) {
+        this.numberOfEnemies = numberOfEnemies;
     }
 }
